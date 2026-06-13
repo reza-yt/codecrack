@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { calcCost } from "@/lib/pricing";
@@ -118,6 +118,13 @@ export async function POST(request: NextRequest) {
 
   const isStreaming = body.stream === true;
 
+  // For streaming, force include_usage so the upstream emits a final
+  // usage chunk. Without this, OpenAI-compat servers omit usage from
+  // streaming responses and we'd never bill.
+  if (isStreaming) {
+    body.stream_options = { ...(body.stream_options ?? {}), include_usage: true };
+  }
+
   // 8. Forward to Hermes
   const hermesUrl = process.env.HERMES_BASE_URL;
   const hermesKey = process.env.HERMES_API_KEY;
@@ -156,14 +163,19 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Update last_used_at (fire-and-forget)
-  supabase
-    .from("api_keys")
-    .update({ last_used_at: new Date().toISOString() })
-    .eq("id", apiKeyId)
-    .then(() => {});
+  // Update last_used_at via after() so it's guaranteed to run after the
+  // response is sent (otherwise Vercel kills the function and the write
+  // is dropped).
+  after(async () => {
+    await supabase
+      .from("api_keys")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", apiKeyId);
+  });
 
+  // ============================================================
   // NON-STREAMING
+  // ============================================================
   if (!isStreaming) {
     const responseText = await upstreamResponse.text();
     let parsed: any;
@@ -176,7 +188,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Extract usage and bill
     const usage = parsed.usage;
     if (usage) {
       const promptTokens = usage.prompt_tokens ?? 0;
@@ -185,26 +196,32 @@ export async function POST(request: NextRequest) {
       const cost = calcCost(promptTokens, completionTokens);
       const durationMs = Date.now() - startTime;
 
-      // Fire-and-forget: deduct + log
-      Promise.all([
-        supabase.rpc("deduct_credits", {
-          p_user_id: userId,
-          p_amount: cost,
-        }),
-        supabase.from("usage_logs").insert({
-          user_id: userId,
-          api_key_id: apiKeyId,
-          request_id: parsed.id ?? null,
-          model: "hermes-agent",
-          prompt_tokens: promptTokens,
-          completion_tokens: completionTokens,
-          total_tokens: totalTokens,
-          cost_usd: cost,
-          status_code: upstreamResponse.status,
-          duration_ms: durationMs,
-          streaming: false,
-        }),
-      ]).catch(() => {});
+      // after() ensures the work completes even after we return the response.
+      after(async () => {
+        try {
+          await Promise.all([
+            supabase.rpc("deduct_credits", {
+              p_user_id: userId,
+              p_amount: cost,
+            }),
+            supabase.from("usage_logs").insert({
+              user_id: userId,
+              api_key_id: apiKeyId,
+              request_id: parsed.id ?? null,
+              model: "hermes-agent",
+              prompt_tokens: promptTokens,
+              completion_tokens: completionTokens,
+              total_tokens: totalTokens,
+              cost_usd: cost,
+              status_code: upstreamResponse.status,
+              duration_ms: durationMs,
+              streaming: false,
+            }),
+          ]);
+        } catch (err) {
+          console.error("billing failed (non-streaming):", err);
+        }
+      });
     }
 
     return new NextResponse(responseText, {
@@ -213,7 +230,9 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // ============================================================
   // STREAMING
+  // ============================================================
   if (!upstreamResponse.body) {
     return errorResponse("invalid_request_error", "No response body from upstream", 502);
   }
@@ -221,9 +240,12 @@ export async function POST(request: NextRequest) {
   let lastRequestId = "";
   let totalPromptTokens = 0;
   let totalCompletionTokens = 0;
+  // Buffer for SSE line splitting — chunks can split a single `data: {...}`
+  // line across two reads. Naive split('\n') drops the half that contained
+  // the usage object.
+  let sseBuffer = "";
 
   const reader = upstreamResponse.body.getReader();
-  const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
   const stream = new ReadableStream({
@@ -236,58 +258,114 @@ export async function POST(request: NextRequest) {
           // Pass through verbatim
           controller.enqueue(value);
 
-          // Parse for usage extraction
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
+          // Append to buffer, then process complete lines only.
+          sseBuffer += decoder.decode(value, { stream: true });
+          let nlIdx;
+          while ((nlIdx = sseBuffer.indexOf("\n")) !== -1) {
+            const line = sseBuffer.slice(0, nlIdx).trimEnd();
+            sseBuffer = sseBuffer.slice(nlIdx + 1);
 
-          for (const line of lines) {
-            if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
-            const jsonStr = line.slice(6);
+            if (!line.startsWith("data: ")) continue;
+            const payload = line.slice(6);
+            if (payload === "[DONE]") continue;
+
             try {
-              const parsed = JSON.parse(jsonStr);
+              const parsed = JSON.parse(payload);
               if (parsed.id) lastRequestId = parsed.id;
               if (parsed.usage) {
-                totalPromptTokens = parsed.usage.prompt_tokens ?? totalPromptTokens;
-                totalCompletionTokens = parsed.usage.completion_tokens ?? totalCompletionTokens;
+                totalPromptTokens =
+                  parsed.usage.prompt_tokens ?? totalPromptTokens;
+                totalCompletionTokens =
+                  parsed.usage.completion_tokens ?? totalCompletionTokens;
               }
             } catch {
-              // Non-JSON line (like event lines), skip
+              // Incomplete or non-JSON line, skip.
             }
           }
         }
       } catch (err) {
-        // Stream error — still close gracefully
+        // Stream error — still close gracefully so client sees end.
       } finally {
         controller.close();
-
-        // Finalize: deduct credits and log usage
-        const totalTokens = totalPromptTokens + totalCompletionTokens;
-        const cost = calcCost(totalPromptTokens, totalCompletionTokens);
-        const durationMs = Date.now() - startTime;
-
-        if (totalTokens > 0) {
-          Promise.all([
-            supabase.rpc("deduct_credits", {
-              p_user_id: userId,
-              p_amount: cost,
-            }),
-            supabase.from("usage_logs").insert({
-              user_id: userId,
-              api_key_id: apiKeyId,
-              request_id: lastRequestId || null,
-              model: "hermes-agent",
-              prompt_tokens: totalPromptTokens,
-              completion_tokens: totalCompletionTokens,
-              total_tokens: totalTokens,
-              cost_usd: cost,
-              status_code: 200,
-              duration_ms: durationMs,
-              streaming: true,
-            }),
-          ]).catch(() => {});
-        }
       }
     },
+  });
+
+  // Capture billing closure into after() so it's guaranteed to commit
+  // after the response stream finishes — Vercel won't kill the function
+  // until after() completes.
+  after(async () => {
+    // Wait briefly for any final TCP chunk that may not have been parsed
+    // before the controller closed. The reader is already drained at this
+    // point, but the buffer might still hold a tail line.
+    if (sseBuffer.length > 0) {
+      const line = sseBuffer.trim();
+      if (line.startsWith("data: ")) {
+        try {
+          const parsed = JSON.parse(line.slice(6));
+          if (parsed.id) lastRequestId = parsed.id;
+          if (parsed.usage) {
+            totalPromptTokens =
+              parsed.usage.prompt_tokens ?? totalPromptTokens;
+            totalCompletionTokens =
+              parsed.usage.completion_tokens ?? totalCompletionTokens;
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    const totalTokens = totalPromptTokens + totalCompletionTokens;
+    const cost = calcCost(totalPromptTokens, totalCompletionTokens);
+    const durationMs = Date.now() - startTime;
+
+    if (totalTokens === 0) {
+      // No usage captured. Log a zero-cost row anyway so the request is
+      // visible in /dashboard/usage and we don't silently lose it.
+      try {
+        await supabase.from("usage_logs").insert({
+          user_id: userId,
+          api_key_id: apiKeyId,
+          request_id: lastRequestId || null,
+          model: "hermes-agent",
+          prompt_tokens: 0,
+          completion_tokens: 0,
+          total_tokens: 0,
+          cost_usd: 0,
+          status_code: upstreamResponse.status,
+          duration_ms: durationMs,
+          streaming: true,
+        });
+      } catch (err) {
+        console.error("zero-usage log failed:", err);
+      }
+      return;
+    }
+
+    try {
+      await Promise.all([
+        supabase.rpc("deduct_credits", {
+          p_user_id: userId,
+          p_amount: cost,
+        }),
+        supabase.from("usage_logs").insert({
+          user_id: userId,
+          api_key_id: apiKeyId,
+          request_id: lastRequestId || null,
+          model: "hermes-agent",
+          prompt_tokens: totalPromptTokens,
+          completion_tokens: totalCompletionTokens,
+          total_tokens: totalTokens,
+          cost_usd: cost,
+          status_code: 200,
+          duration_ms: durationMs,
+          streaming: true,
+        }),
+      ]);
+    } catch (err) {
+      console.error("billing failed (streaming):", err);
+    }
   });
 
   return new NextResponse(stream, {
