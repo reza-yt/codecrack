@@ -1,113 +1,110 @@
-"use client";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { SettingsForm } from "./settings-form";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+export const dynamic = "force-dynamic";
 
-export default function SettingsPage() {
-  const [displayName, setDisplayName] = useState("");
-  const [email, setEmail] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadProfile() {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        setEmail(user.email ?? "");
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("display_name")
-          .eq("id", user.id)
-          .single();
-        setDisplayName(profile?.display_name ?? "");
-      }
-      setLoading(false);
-    }
-    loadProfile();
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ display_name: displayName.trim() || null })
-        .eq("id", user.id);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    }
-    setSaving(false);
-  };
-
-  if (loading) {
-    return (
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-50 mb-6">Settings</h1>
-        <p className="text-zinc-500">Loading...</p>
-      </div>
-    );
-  }
+export default async function SettingsPage() {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, display_name, status, created_at")
+    .eq("id", user!.id)
+    .maybeSingle();
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Settings</h1>
-
-      {/* Profile */}
-      <div className="glass rounded-xl p-6 mb-8">
-        <h2 className="text-lg font-semibold text-zinc-50 mb-4">Profile</h2>
-        <div className="space-y-4 max-w-md">
-          <div>
-            <label className="block text-sm text-zinc-300 mb-1.5">Email</label>
-            <input
-              type="email"
-              value={email}
-              disabled
-              className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-500 cursor-not-allowed"
-            />
-            <p className="text-xs text-zinc-600 mt-1">Email cannot be changed.</p>
-          </div>
-          <div>
-            <label className="block text-sm text-zinc-300 mb-1.5">
-              Display name
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your name"
-              className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
-            />
-          </div>
-          <Button onClick={handleSave} disabled={saving} size="sm">
-            {saved ? "Saved!" : saving ? "Saving..." : "Save changes"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Danger zone */}
-      <div className="rounded-xl border border-red-500/20 p-6">
-        <h2 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h2>
-        <p className="text-sm text-zinc-400 mb-4">
-          Account deletion is permanent. All keys, usage data, and remaining
-          credits will be lost. Contact{" "}
-          <code className="font-mono text-emerald-400">contact@codecrack.dev</code>{" "}
-          to request deletion.
+      <div className="mb-8">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+          Settings
         </p>
-        <Button variant="danger" size="sm" disabled>
-          Delete account (contact support)
-        </Button>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Account</h1>
       </div>
+
+      <div className="space-y-8">
+        <Section title="Profile" description="Public display details.">
+          <SettingsForm initialName={profile?.display_name ?? null} />
+        </Section>
+
+        <Section title="Account info" description="Read-only.">
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Row label="Email" value={profile?.email ?? user!.email ?? "—"} />
+            <Row label="Status" value={profile?.status ?? "waitlist"} />
+            <Row
+              label="Member since"
+              value={
+                profile?.created_at
+                  ? new Date(profile.created_at).toISOString().slice(0, 10)
+                  : "—"
+              }
+            />
+            <Row label="User ID" value={user!.id} mono />
+          </dl>
+        </Section>
+
+        <Section
+          title="Danger zone"
+          description="These actions affect access to your account."
+        >
+          <div className="rounded-lg border border-red-400/30 bg-red-500/5 p-4 text-sm text-red-100/90">
+            Need to delete your account or refund your balance? Email{" "}
+            <a
+              href="mailto:contact@codecrack.dev"
+              className="text-red-200 underline underline-offset-2"
+            >
+              contact@codecrack.dev
+            </a>{" "}
+            and we&apos;ll process it within 30 days.
+          </div>
+        </Section>
+      </div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-zinc-800/70 bg-zinc-900/30 p-6">
+      <div className="mb-5">
+        <h2 className="text-base font-semibold text-zinc-100">{title}</h2>
+        <p className="mt-1 text-sm text-zinc-500">{description}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Row({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div>
+      <dt className="text-[10px] uppercase tracking-widest text-zinc-500">
+        {label}
+      </dt>
+      <dd
+        className={`mt-1 break-all text-sm text-zinc-200 ${
+          mono ? "font-mono" : ""
+        }`}
+      >
+        {value}
+      </dd>
     </div>
   );
 }

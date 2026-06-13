@@ -1,25 +1,32 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export function LogoutButton() {
   const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+  function onClick() {
+    startTransition(async () => {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    });
+  }
 
   return (
     <button
-      onClick={handleLogout}
-      className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-50 transition-colors w-full px-3 py-2 rounded-lg hover:bg-zinc-800/50"
+      type="button"
+      onClick={onClick}
+      disabled={pending}
+      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-md border border-zinc-800/70 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-zinc-700 hover:bg-zinc-900/60 hover:text-zinc-100 disabled:opacity-50"
     >
-      <LogOut className="w-4 h-4" />
-      Sign out
+      <LogOut className="h-3.5 w-3.5" />
+      {pending ? "Signing out…" : "Sign out"}
     </button>
   );
 }

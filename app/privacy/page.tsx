@@ -1,55 +1,87 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+};
+
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen">
       <SiteHeader />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-16">
-        <h1 className="text-3xl font-bold text-zinc-50 mb-8">Privacy Policy</h1>
-        <div className="prose prose-invert prose-zinc max-w-none space-y-6 text-zinc-300 text-sm leading-relaxed">
-          <p>Last updated: January 2025</p>
+      <main className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+          Legal
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+          Privacy Policy
+        </h1>
+        <p className="mt-2 font-mono text-xs text-zinc-500">
+          Last updated: {new Date().toISOString().slice(0, 10)}
+        </p>
 
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">1. Data We Collect</h2>
-          <p>
-            We collect your email address (for authentication), API usage metadata
-            (token counts, timestamps, status codes), and optional use case description
-            from the waitlist form.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">2. What We Don&apos;t Store</h2>
-          <p>
-            We do not store the content of your messages or Hermes responses.
-            Request bodies are proxied in real-time and not logged. API keys are
-            stored as SHA-256 hashes only.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">3. How We Use Data</h2>
-          <p>
-            Email: authentication and service communications. Usage data: billing
-            calculations and system monitoring. We do not sell your data to third parties.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">4. Data Security</h2>
-          <p>
-            All data is stored in Supabase (Postgres) with Row Level Security enabled.
-            API keys are hashed before storage. All traffic is encrypted via TLS.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">5. Data Retention</h2>
-          <p>
-            Usage logs are retained indefinitely for billing purposes. You may request
-            account deletion by contacting contact@codecrack.dev.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">6. Contact</h2>
-          <p>
-            For privacy-related inquiries, email{" "}
-            <code className="font-mono text-emerald-400">contact@codecrack.dev</code>.
-          </p>
+        <div className="mt-10 space-y-6 text-sm leading-relaxed text-zinc-300">
+          <Section title="What we store">
+            <ul className="list-disc space-y-1 pl-5 text-zinc-400">
+              <li>Email address (for auth via magic link).</li>
+              <li>SHA-256 hashes of your API keys — never the plaintext.</li>
+              <li>
+                Per-request usage logs: timestamp, token counts, cost,
+                duration, status code, key prefix. We do{" "}
+                <strong>not</strong> store request or response bodies.
+              </li>
+              <li>Credit balance and top-up history.</li>
+            </ul>
+          </Section>
+          <Section title="Upstream">
+            <p>
+              Requests are forwarded over TLS to{" "}
+              <code className="font-mono text-emerald-300">
+                hermes.codecrack.dev
+              </code>{" "}
+              via Cloudflare Tunnel. Hermes processes message content to
+              generate responses. We do not retain message content beyond the
+              request lifecycle on the gateway.
+            </p>
+          </Section>
+          <Section title="Cookies">
+            <p>
+              Auth uses Supabase cookies for session management. No third-party
+              analytics or advertising cookies.
+            </p>
+          </Section>
+          <Section title="Your rights">
+            <p>
+              Email{" "}
+              <a
+                href="mailto:contact@codecrack.dev"
+                className="text-emerald-300"
+              >
+                contact@codecrack.dev
+              </a>{" "}
+              to export or delete your data. We honor deletion within 30 days
+              except where retention is required by law.
+            </p>
+          </Section>
         </div>
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h2 className="text-base font-semibold text-zinc-100">{title}</h2>
+      <div className="mt-2 text-zinc-400">{children}</div>
+    </section>
   );
 }
