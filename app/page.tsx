@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Zap, Layers, Shield, Code2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -49,7 +50,28 @@ const features = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string; error?: string; error_description?: string }>;
+}) {
+  // Defense-in-depth: if Supabase falls back to the Site URL with ?code=...
+  // (e.g. allowlist gap or stale magic link), forward to /auth/callback so
+  // exchangeCodeForSession still runs.
+  const params = await searchParams;
+  if (params.code) {
+    redirect(`/auth/callback?code=${encodeURIComponent(params.code)}`);
+  }
+  if (params.error) {
+    redirect(
+      `/auth/error?error=${encodeURIComponent(params.error)}${
+        params.error_description
+          ? `&error_description=${encodeURIComponent(params.error_description)}`
+          : ""
+      }`,
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />

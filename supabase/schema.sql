@@ -5,11 +5,12 @@
 create extension if not exists pgcrypto;
 
 -- profiles: extends auth.users, gates access via status
+-- Default 'approved' for open MVP. Flip to 'waitlist' if you want gated access.
 create table profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   email         text not null,
   display_name  text,
-  status        text not null default 'waitlist'
+  status        text not null default 'approved'
                 check (status in ('waitlist','approved','suspended')),
   created_at    timestamptz default now(),
   approved_at   timestamptz
@@ -30,6 +31,7 @@ create index idx_api_keys_hash on api_keys(key_hash) where revoked = false;
 create index idx_api_keys_user on api_keys(user_id) where revoked = false;
 
 -- credits: USD balance per user, atomic decrement via RPC
+-- New users get a small starter balance so they can test before topping up.
 create table credits (
   user_id     uuid primary key references auth.users(id) on delete cascade,
   balance_usd numeric(12,6) not null default 0
@@ -55,7 +57,7 @@ create table usage_logs (
 );
 create index idx_usage_user_time on usage_logs(user_id, created_at desc);
 
--- waitlist: anonymous signups
+-- waitlist: anonymous signups (still here for legacy form, harmless if unused)
 create table waitlist (
   id         uuid primary key default gen_random_uuid(),
   email      text not null unique,
@@ -74,6 +76,8 @@ alter table waitlist    enable row level security;
 
 create policy profiles_self_read on profiles
   for select using (auth.uid() = id);
+create policy profiles_self_update on profiles
+  for update using (auth.uid() = id);
 create policy api_keys_self_read on api_keys
   for select using (auth.uid() = user_id);
 create policy api_keys_self_insert on api_keys
@@ -87,14 +91,17 @@ create policy usage_logs_self_read on usage_logs
 create policy waitlist_anon_insert on waitlist
   for insert with check (true);
 
--- Auto-create profile + zero credits on signup
+-- Auto-create profile (status='approved') + $1 starter credits on signup.
+-- $1 ≈ 333k input tokens or 66k output tokens at default pricing — enough
+-- to kick the tires before topping up.
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer
 set search_path = public as $$
 begin
-  insert into profiles (id, email) values (new.id, new.email)
+  insert into profiles (id, email, status, approved_at)
+    values (new.id, new.email, 'approved', now())
     on conflict (id) do nothing;
-  insert into credits (user_id, balance_usd) values (new.id, 0)
+  insert into credits (user_id, balance_usd) values (new.id, 1.00)
     on conflict (user_id) do nothing;
   return new;
 end; $$;
