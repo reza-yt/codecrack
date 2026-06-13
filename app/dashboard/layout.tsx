@@ -5,12 +5,12 @@ import { Home, Key, Activity, Wallet, Settings, BookOpen, ShieldAlert } from "lu
 import { LogoutButton } from "./logout-button";
 
 const baseNav = [
-  { href: "/dashboard", icon: Home, label: "Overview" },
-  { href: "/dashboard/keys", icon: Key, label: "API Keys" },
-  { href: "/dashboard/usage", icon: Activity, label: "Usage" },
-  { href: "/dashboard/billing", icon: Wallet, label: "Billing" },
-  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
-  { href: "/docs", icon: BookOpen, label: "Docs" },
+  { href: "/dashboard", icon: Home, label: "Ringkasan" },
+  { href: "/dashboard/keys", icon: Key, label: "API Key" },
+  { href: "/dashboard/usage", icon: Activity, label: "Pemakaian" },
+  { href: "/dashboard/billing", icon: Wallet, label: "Tagihan" },
+  { href: "/dashboard/settings", icon: Settings, label: "Pengaturan" },
+  { href: "/docs", icon: BookOpen, label: "Dokumentasi" },
 ];
 
 export default async function DashboardLayout({

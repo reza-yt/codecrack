@@ -48,18 +48,18 @@ export default async function DashboardOverview() {
 
 client = OpenAI(
     base_url="https://api.codecrack.dev/v1",
-    api_key="YOUR_API_KEY"  # from /dashboard/keys
+    api_key="API_KEY_ANDA"  # ambil dari /dashboard/keys
 )
 
 response = client.chat.completions.create(
-    model="hermes-agent",
-    messages=[{"role": "user", "content": "hello"}],
+    model="codecrack",
+    messages=[{"role": "user", "content": "halo"}],
     stream=True,
 )`;
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Dasbor</h1>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -67,7 +67,7 @@ response = client.chat.completions.create(
         <div className="glass rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Wallet className="w-4 h-4 text-zinc-400" />
-            <span className="text-xs text-zinc-400">Credit Balance</span>
+            <span className="text-xs text-zinc-400">Saldo kredit</span>
           </div>
           <p
             className={`text-2xl font-mono font-bold ${
@@ -80,7 +80,7 @@ response = client.chat.completions.create(
             href="/dashboard/billing"
             className="text-xs text-emerald-400 hover:underline mt-2 inline-block"
           >
-            Manage →
+            Kelola →
           </Link>
         </div>
 
@@ -88,7 +88,7 @@ response = client.chat.completions.create(
         <div className="glass rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Key className="w-4 h-4 text-zinc-400" />
-            <span className="text-xs text-zinc-400">Active Keys</span>
+            <span className="text-xs text-zinc-400">API key aktif</span>
           </div>
           <p className="text-2xl font-mono font-bold text-zinc-50">
             {keysCount ?? 0}
@@ -97,7 +97,7 @@ response = client.chat.completions.create(
             href="/dashboard/keys"
             className="text-xs text-emerald-400 hover:underline mt-2 inline-block"
           >
-            Manage →
+            Kelola →
           </Link>
         </div>
 
@@ -105,7 +105,7 @@ response = client.chat.completions.create(
         <div className="glass rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Activity className="w-4 h-4 text-zinc-400" />
-            <span className="text-xs text-zinc-400">Usage (30d)</span>
+            <span className="text-xs text-zinc-400">Pemakaian (30 hari)</span>
           </div>
           <p className="text-2xl font-mono font-bold text-zinc-50">
             ${usage30d.toFixed(4)}
@@ -114,14 +114,14 @@ response = client.chat.completions.create(
             href="/dashboard/usage"
             className="text-xs text-emerald-400 hover:underline mt-2 inline-block"
           >
-            View logs →
+            Lihat log →
           </Link>
         </div>
       </div>
 
       {/* Quickstart */}
       <div>
-        <h2 className="text-lg font-semibold text-zinc-50 mb-3">Quickstart</h2>
+        <h2 className="text-lg font-semibold text-zinc-50 mb-3">Panduan singkat</h2>
         <CodeBlock code={quickstartCode} language="python" />
       </div>
     </div>

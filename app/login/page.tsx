@@ -10,10 +10,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-zinc-50 mb-2">
-              Sign in
+              Masuk
             </h1>
             <p className="text-zinc-400 text-sm">
-              Kita kirim magic link ke email lo. No password needed.
+              Tautan login akan dikirim ke email Anda. Tidak diperlukan kata sandi.
             </p>
           </div>
           <LoginForm />

@@ -25,7 +25,7 @@ export default async function KeysPage() {
   return (
     <div className="fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-zinc-50">API Keys</h1>
+        <h1 className="text-2xl font-bold text-zinc-50">API Key</h1>
         <CreateKeyButton />
       </div>
 
@@ -33,9 +33,9 @@ export default async function KeysPage() {
         /* Empty state */
         <div className="glass rounded-xl p-12 text-center">
           <Key className="w-10 h-10 text-zinc-600 mx-auto mb-4" />
-          <p className="text-zinc-400 mb-2">No API keys yet</p>
+          <p className="text-zinc-400 mb-2">Belum ada API key</p>
           <p className="text-xs text-zinc-500">
-            Create a key to start using the gateway.
+            Buat API key terlebih dahulu untuk mulai menggunakan gateway.
           </p>
         </div>
       ) : (
@@ -46,11 +46,11 @@ export default async function KeysPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-zinc-800/60">
-                    <th className="text-left px-4 py-3 text-zinc-400 font-normal">Name</th>
+                    <th className="text-left px-4 py-3 text-zinc-400 font-normal">Nama</th>
                     <th className="text-left px-4 py-3 text-zinc-400 font-normal">Key</th>
-                    <th className="text-left px-4 py-3 text-zinc-400 font-normal hidden sm:table-cell">Last used</th>
-                    <th className="text-left px-4 py-3 text-zinc-400 font-normal hidden sm:table-cell">Created</th>
-                    <th className="text-right px-4 py-3 text-zinc-400 font-normal">Action</th>
+                    <th className="text-left px-4 py-3 text-zinc-400 font-normal hidden sm:table-cell">Terakhir digunakan</th>
+                    <th className="text-left px-4 py-3 text-zinc-400 font-normal hidden sm:table-cell">Dibuat</th>
+                    <th className="text-right px-4 py-3 text-zinc-400 font-normal">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -63,7 +63,7 @@ export default async function KeysPage() {
                         </code>
                       </td>
                       <td className="px-4 py-3 text-zinc-500 text-xs hidden sm:table-cell">
-                        {key.last_used_at ? formatRelativeTime(key.last_used_at) : "Never"}
+                        {key.last_used_at ? formatRelativeTime(key.last_used_at) : "Belum pernah"}
                       </td>
                       <td className="px-4 py-3 text-zinc-500 text-xs hidden sm:table-cell">
                         {formatRelativeTime(key.created_at)}
@@ -82,7 +82,7 @@ export default async function KeysPage() {
           {revokedKeys.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-zinc-500 mb-3">
-                Revoked ({revokedKeys.length})
+                Dicabut ({revokedKeys.length})
               </h3>
               <div className="glass rounded-xl overflow-hidden opacity-60">
                 <table className="w-full text-sm">
@@ -96,7 +96,7 @@ export default async function KeysPage() {
                           </code>
                         </td>
                         <td className="px-4 py-2 text-right">
-                          <span className="text-xs text-zinc-600">revoked</span>
+                          <span className="text-xs text-zinc-600">dicabut</span>
                         </td>
                       </tr>
                     ))}

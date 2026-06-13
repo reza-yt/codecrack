@@ -22,7 +22,7 @@ export function Spinner({ size = "sm", className, label }: SpinnerProps) {
         aria-hidden="true"
       />
       {label && <span className="text-sm text-zinc-400">{label}</span>}
-      <span className="sr-only">Loading</span>
+      <span className="sr-only">Memuat</span>
     </span>
   );
 }
@@ -31,7 +31,7 @@ interface FullPageSpinnerProps {
   label?: string;
 }
 
-export function FullPageSpinner({ label = "Loading..." }: FullPageSpinnerProps) {
+export function FullPageSpinner({ label = "Memuat..." }: FullPageSpinnerProps) {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 fade-in">
       <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />

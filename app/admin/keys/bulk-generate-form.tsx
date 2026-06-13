@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { bulkGenerateKeys } from "../actions";
 
 const QUOTA_PRESETS = [
-  { label: "1M", value: 1_000_000 },
-  { label: "5M", value: 5_000_000 },
-  { label: "10M", value: 10_000_000 },
-  { label: "25M", value: 25_000_000 },
-  { label: "50M", value: 50_000_000 },
+  { label: "1JT", value: 1_000_000 },
+  { label: "5JT", value: 5_000_000 },
+  { label: "10JT", value: 10_000_000 },
+  { label: "25JT", value: 25_000_000 },
+  { label: "50JT", value: 50_000_000 },
 ];
 
 export function BulkGenerateForm() {
@@ -45,7 +45,7 @@ export function BulkGenerateForm() {
 
   const csvFromResult = () => {
     if (!result?.keys) return "";
-    const header = "name,api_key,token_quota,batch\n";
+    const header = "nama,api_key,kuota_token,batch\n";
     const rows = result.keys
       .map(
         (k) =>
@@ -82,13 +82,12 @@ export function BulkGenerateForm() {
           <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 text-xs text-amber-300">
             <p className="font-medium mb-1">
-              Save these keys now — they won&apos;t be visible again.
+              Simpan key ini sekarang. Key tidak akan ditampilkan kembali.
             </p>
             <p className="text-amber-300/70">
               Batch:{" "}
               <code className="font-mono">{result.batchLabel}</code> · {result.keys.length}{" "}
-              key{result.keys.length === 1 ? "" : "s"} ·{" "}
-              {result.keys[0].tokenQuota.toLocaleString()} tokens each
+              key · {result.keys[0].tokenQuota.toLocaleString("id-ID")} token per key
             </p>
           </div>
         </div>
@@ -103,16 +102,16 @@ export function BulkGenerateForm() {
           <Button onClick={handleCopyAll} size="sm" variant="secondary">
             {copied ? (
               <>
-                <Check className="w-4 h-4 mr-1.5" /> Copied
+                <Check className="w-4 h-4 mr-1.5" /> Tersalin
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4 mr-1.5" /> Copy all keys
+                <Copy className="w-4 h-4 mr-1.5" /> Salin semua key
               </>
             )}
           </Button>
           <Button onClick={handleDownloadCSV} size="sm" variant="secondary">
-            <Download className="w-4 h-4 mr-1.5" /> Download CSV
+            <Download className="w-4 h-4 mr-1.5" /> Unduh CSV
           </Button>
           <Button
             onClick={() => {
@@ -122,7 +121,7 @@ export function BulkGenerateForm() {
             size="sm"
             variant="ghost"
           >
-            Done
+            Selesai
           </Button>
         </div>
       </div>
@@ -134,7 +133,7 @@ export function BulkGenerateForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm text-zinc-300 mb-1.5">
-            How many keys?
+            Jumlah key
           </label>
           <input
             type="number"
@@ -148,7 +147,7 @@ export function BulkGenerateForm() {
 
         <div>
           <label className="block text-sm text-zinc-300 mb-1.5">
-            Token quota per key
+            Kuota token per key
           </label>
           <input
             type="number"
@@ -181,7 +180,7 @@ export function BulkGenerateForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm text-zinc-300 mb-1.5">
-            Name prefix
+            Awalan nama
           </label>
           <input
             type="text"
@@ -191,20 +190,20 @@ export function BulkGenerateForm() {
             className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
           />
           <p className="text-[11px] text-zinc-500 mt-1">
-            Keys named: {namePrefix}-1, {namePrefix}-2, ...
+            Nama key akan menjadi: {namePrefix}-1, {namePrefix}-2, dan seterusnya.
           </p>
         </div>
 
         <div>
           <label className="block text-sm text-zinc-300 mb-1.5">
-            Batch label{" "}
-            <span className="text-zinc-500">(optional)</span>
+            Label batch{" "}
+            <span className="text-zinc-500">(opsional)</span>
           </label>
           <input
             type="text"
             value={batchLabel}
             onChange={(e) => setBatchLabel(e.target.value)}
-            placeholder="auto: batch-YYYY-MM-DD-xxxx"
+            placeholder="otomatis: batch-YYYY-MM-DD-xxxx"
             className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
           />
         </div>
@@ -217,11 +216,10 @@ export function BulkGenerateForm() {
       <Button type="submit" disabled={pending}>
         {pending ? (
           <span className="inline-flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Generating {count} key
-            {count === 1 ? "" : "s"}...
+            <Loader2 className="w-4 h-4 animate-spin" /> Membuat {count} key...
           </span>
         ) : (
-          `Generate ${count} key${count === 1 ? "" : "s"}`
+          `Buat ${count} key`
         )}
       </Button>
     </form>

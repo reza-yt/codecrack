@@ -32,7 +32,7 @@ export function LoginForm() {
 
       setStatus("sent");
     } catch {
-      setErrorMessage("Network error. Try again.");
+      setErrorMessage("Terjadi gangguan jaringan. Silakan coba lagi.");
       setStatus("error");
     }
   };
@@ -44,12 +44,12 @@ export function LoginForm() {
           <span className="text-emerald-400 text-xl">✉</span>
         </div>
         <h2 className="text-lg font-semibold text-zinc-50 mb-2">
-          Check your email
+          Periksa email Anda
         </h2>
         <p className="text-sm text-zinc-400">
-          Magic link sent to{" "}
+          Tautan login telah dikirim ke{" "}
           <span className="font-mono text-zinc-300">{email}</span>.
-          Click it to sign in.
+          Klik tautan tersebut untuk masuk.
         </p>
       </div>
     );
@@ -67,7 +67,7 @@ export function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder="anda@contoh.com"
           className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50"
         />
       </div>
@@ -79,10 +79,10 @@ export function LoginForm() {
       <Button type="submit" disabled={status === "loading"} className="w-full">
         {status === "loading" ? (
           <span className="inline-flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Sending...
+            <Loader2 className="w-4 h-4 animate-spin" /> Mengirim...
           </span>
         ) : (
-          "Send magic link"
+          "Kirim tautan login"
         )}
       </Button>
     </form>

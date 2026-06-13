@@ -38,10 +38,10 @@ export function RevokeKeyButton({ keyId }: { keyId: string }) {
         <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
       )}
       {step === "confirm"
-        ? "Confirm revoke?"
+        ? "Yakin cabut?"
         : step === "loading"
-        ? "Revoking"
-        : "Revoke"}
+        ? "Mencabut"
+        : "Cabut"}
     </button>
   );
 }

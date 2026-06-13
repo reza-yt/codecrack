@@ -38,7 +38,7 @@ export function CreateKeyButton() {
     return (
       <Button onClick={() => setIsOpen(true)} size="sm">
         <Plus className="w-4 h-4 mr-1.5" />
-        New key
+        Key baru
       </Button>
     );
   }
@@ -52,7 +52,7 @@ export function CreateKeyButton() {
             <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
               <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
               <p className="text-xs text-amber-300">
-                Copy this key now. You won&apos;t be able to see it again.
+                Salin key ini sekarang. Key tidak akan ditampilkan kembali.
               </p>
             </div>
             <div className="flex items-center gap-2 p-3 rounded-lg bg-zinc-900/80 border border-zinc-700 mb-4">
@@ -71,27 +71,27 @@ export function CreateKeyButton() {
               </button>
             </div>
             <Button onClick={handleClose} variant="secondary" className="w-full">
-              Done
+              Selesai
             </Button>
           </div>
         ) : (
           /* Create form */
           <div>
             <h3 className="text-lg font-semibold text-zinc-50 mb-4">
-              Create API Key
+              Buat API key
             </h3>
             {result?.error && (
               <p className="text-sm text-red-400 mb-3">{result.error}</p>
             )}
             <div className="mb-4">
               <label className="block text-sm text-zinc-300 mb-1.5">
-                Key name
+                Nama key
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. dev-machine, ci-pipeline"
+                placeholder="contoh: dev-machine, ci-pipeline"
                 className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
               />
             </div>
@@ -101,14 +101,14 @@ export function CreateKeyButton() {
                 variant="ghost"
                 className="flex-1"
               >
-                Cancel
+                Batal
               </Button>
               <Button
                 onClick={handleCreate}
                 disabled={loading}
                 className="flex-1"
               >
-                {loading ? "Creating..." : "Create"}
+                {loading ? "Membuat..." : "Buat"}
               </Button>
             </div>
           </div>

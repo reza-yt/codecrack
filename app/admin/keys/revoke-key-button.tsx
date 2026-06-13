@@ -33,7 +33,7 @@ export function RevokeKeyButton({ keyId }: { keyId: string }) {
       }`}
     >
       {pending && <Loader2 className="w-3 h-3 animate-spin" />}
-      {step === "confirm" ? "Confirm?" : pending ? "Revoking" : "Revoke"}
+      {step === "confirm" ? "Yakin?" : pending ? "Mencabut" : "Cabut"}
     </button>
   );
 }

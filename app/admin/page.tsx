@@ -38,32 +38,32 @@ export default async function AdminOverview() {
 
   const stats = [
     {
-      label: "Users",
-      value: (userCount ?? 0).toLocaleString(),
+      label: "Pengguna",
+      value: (userCount ?? 0).toLocaleString("id-ID"),
       icon: Users,
     },
     {
-      label: "Active keys",
+      label: "Key aktif",
       value: `${activeKeyCount ?? 0} / ${keyCount ?? 0}`,
       icon: Key,
     },
     {
-      label: "Requests (30d)",
-      value: requests30d.toLocaleString(),
+      label: "Permintaan (30 hari)",
+      value: requests30d.toLocaleString("id-ID"),
       icon: Activity,
     },
     {
-      label: "Tokens (30d)",
-      value: totalTokens30d.toLocaleString(),
+      label: "Token (30 hari)",
+      value: totalTokens30d.toLocaleString("id-ID"),
       icon: Coins,
     },
   ];
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-2">Admin overview</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-2">Ringkasan admin</h1>
       <p className="text-sm text-zinc-400 mb-6">
-        Operator-only panel. Service-role queries — RLS bypassed.
+        Panel khusus operator. Semua kueri dijalankan dengan service role, RLS dilewati.
       </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -82,14 +82,14 @@ export default async function AdminOverview() {
 
       <div className="glass rounded-xl p-6">
         <h2 className="text-lg font-semibold text-zinc-50 mb-3">
-          30-day revenue (USD-billed only)
+          Pendapatan 30 hari (hanya tagihan USD)
         </h2>
         <p className="text-3xl font-mono font-bold text-emerald-400">
           ${totalCost30d.toFixed(4)}
         </p>
         <p className="text-xs text-zinc-500 mt-1">
-          From dashboard-issued (non-quota) keys. Token-quota keys are billed
-          upfront when generated and don't show here.
+          Berasal dari key yang dibuat melalui dasbor pengguna (non-kuota).
+          Key berbasis kuota token ditagih di muka saat dibuat sehingga tidak muncul di sini.
         </p>
       </div>
     </div>

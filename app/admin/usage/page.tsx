@@ -26,14 +26,14 @@ export default async function AdminUsagePage({
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-2">Usage logs (all users)</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-2">Log pemakaian (semua pengguna)</h1>
       <p className="text-sm text-zinc-400 mb-6">
-        Showing every request across the gateway.
+        Menampilkan seluruh permintaan yang melewati gateway.
       </p>
 
       {!logs || logs.length === 0 ? (
         <div className="glass rounded-xl p-12 text-center">
-          <p className="text-zinc-400">No usage yet.</p>
+          <p className="text-zinc-400">Belum ada pemakaian.</p>
         </div>
       ) : (
         <>
@@ -42,13 +42,13 @@ export default async function AdminUsagePage({
               <thead>
                 <tr className="border-b border-zinc-800/60">
                   <th className="text-left px-3 py-2 text-zinc-400 font-normal text-xs">
-                    Time
+                    Waktu
                   </th>
                   <th className="text-left px-3 py-2 text-zinc-400 font-normal text-xs">
                     Key
                   </th>
                   <th className="text-left px-3 py-2 text-zinc-400 font-normal text-xs">
-                    Type
+                    Tipe
                   </th>
                   <th className="text-right px-3 py-2 text-zinc-400 font-normal text-xs">
                     In
@@ -60,13 +60,13 @@ export default async function AdminUsagePage({
                     Total
                   </th>
                   <th className="text-right px-3 py-2 text-zinc-400 font-normal text-xs">
-                    Cost
+                    Biaya
                   </th>
                   <th className="text-center px-3 py-2 text-zinc-400 font-normal text-xs">
                     Status
                   </th>
                   <th className="text-right px-3 py-2 text-zinc-400 font-normal text-xs">
-                    Duration
+                    Durasi
                   </th>
                 </tr>
               </thead>
@@ -99,17 +99,17 @@ export default async function AdminUsagePage({
                               : "bg-zinc-800/50 text-zinc-400"
                           }`}
                         >
-                          {isQuota ? "quota" : "credit"}
+                          {isQuota ? "kuota" : "kredit"}
                         </span>
                       </td>
                       <td className="px-3 py-1.5 text-right text-zinc-300 font-mono text-xs">
-                        {log.prompt_tokens.toLocaleString()}
+                        {log.prompt_tokens.toLocaleString("id-ID")}
                       </td>
                       <td className="px-3 py-1.5 text-right text-zinc-300 font-mono text-xs">
-                        {log.completion_tokens.toLocaleString()}
+                        {log.completion_tokens.toLocaleString("id-ID")}
                       </td>
                       <td className="px-3 py-1.5 text-right text-zinc-50 font-mono text-xs">
-                        {log.total_tokens.toLocaleString()}
+                        {log.total_tokens.toLocaleString("id-ID")}
                       </td>
                       <td className="px-3 py-1.5 text-right text-emerald-400 font-mono text-xs">
                         {formatCurrency(Number(log.cost_usd))}
@@ -142,7 +142,7 @@ export default async function AdminUsagePage({
                   href={`/admin/usage?page=${page - 1}`}
                   className="text-xs text-zinc-400 hover:text-zinc-50 px-3 py-1.5 rounded-lg hover:bg-zinc-800/50"
                 >
-                  ← Prev
+                  ← Sebelumnya
                 </a>
               )}
               <span className="text-xs text-zinc-500 font-mono">
@@ -153,7 +153,7 @@ export default async function AdminUsagePage({
                   href={`/admin/usage?page=${page + 1}`}
                   className="text-xs text-zinc-400 hover:text-zinc-50 px-3 py-1.5 rounded-lg hover:bg-zinc-800/50"
                 >
-                  Next →
+                  Berikutnya →
                 </a>
               )}
             </div>

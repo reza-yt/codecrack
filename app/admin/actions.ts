@@ -34,16 +34,16 @@ export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResul
       .slice(2, 6)}`;
 
   if (!Number.isFinite(count) || count < 1 || count > MAX_BULK_KEYS) {
-    return { error: `Count must be between 1 and ${MAX_BULK_KEYS}.` };
+    return { error: `Jumlah harus antara 1 sampai ${MAX_BULK_KEYS}.` };
   }
   if (!Number.isFinite(tokenQuota) || tokenQuota < 1) {
-    return { error: "Token quota must be a positive integer." };
+    return { error: "Kuota token harus berupa bilangan bulat positif." };
   }
   if (tokenQuota > MAX_TOKEN_QUOTA) {
-    return { error: `Token quota cannot exceed ${MAX_TOKEN_QUOTA.toLocaleString()}.` };
+    return { error: `Kuota token tidak boleh melebihi ${MAX_TOKEN_QUOTA.toLocaleString("id-ID")}.` };
   }
   if (!/^[A-Za-z0-9_\- ]{1,40}$/.test(namePrefix)) {
-    return { error: "Name prefix must be alphanumeric (1-40 chars)." };
+    return { error: "Awalan nama harus alfanumerik (1 sampai 40 karakter)." };
   }
 
   const supabase = createServiceClient();
@@ -70,7 +70,7 @@ export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResul
   const { error } = await supabase.from("api_keys").insert(rows);
 
   if (error) {
-    return { error: `Failed to insert keys: ${error.message}` };
+    return { error: `Gagal menyimpan key: ${error.message}` };
   }
 
   revalidatePath("/admin/keys");
@@ -96,7 +96,7 @@ export async function setUserRole(
   const { user } = await requireAdmin();
 
   if (userId === user.id && role !== "admin") {
-    return { error: "Cannot demote yourself. Have another admin do it." };
+    return { error: "Tidak dapat menurunkan peran diri sendiri. Mintalah admin lain untuk melakukannya." };
   }
 
   const supabase = createServiceClient();
@@ -133,7 +133,7 @@ export async function adjustCredits(
 ): Promise<{ error?: string; success?: boolean }> {
   await requireAdmin();
   if (!Number.isFinite(newBalance) || newBalance < 0) {
-    return { error: "Balance must be >= 0." };
+    return { error: "Saldo harus bernilai 0 atau lebih besar." };
   }
   const supabase = createServiceClient();
   const { error } = await supabase

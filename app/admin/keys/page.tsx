@@ -19,16 +19,16 @@ export default async function AdminKeysPage() {
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-2">API keys</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-2">API key</h1>
       <p className="text-sm text-zinc-400 mb-6">
-        Generate quota-based keys to resell. Quota keys are not tied to any
-        user account — the key itself is the credential.
+        Buat key berbasis kuota untuk dijual kembali. Key kuota tidak terikat
+        dengan akun pengguna; key itu sendiri yang berfungsi sebagai kredensial.
       </p>
 
       {/* Bulk generate */}
       <div className="glass rounded-xl p-6 mb-8">
         <h2 className="text-lg font-semibold text-zinc-50 mb-4">
-          Bulk generate
+          Buat key massal
         </h2>
         <BulkGenerateForm />
       </div>
@@ -36,14 +36,14 @@ export default async function AdminKeysPage() {
       {/* Admin-issued (quota) keys */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-zinc-50 mb-3">
-          Admin-issued keys{" "}
+          Key terbitan admin{" "}
           <span className="text-sm font-normal text-zinc-500">
             ({adminIssued.length})
           </span>
         </h2>
         {adminIssued.length === 0 ? (
           <div className="glass rounded-xl p-12 text-center">
-            <p className="text-sm text-zinc-400">No admin-issued keys yet.</p>
+            <p className="text-sm text-zinc-400">Belum ada key terbitan admin.</p>
           </div>
         ) : (
           <div className="glass rounded-xl overflow-x-auto">
@@ -51,25 +51,25 @@ export default async function AdminKeysPage() {
               <thead>
                 <tr className="border-b border-zinc-800/60">
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Name
+                    Nama
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Prefix
+                    Awalan
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
                     Batch
                   </th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">
-                    Used / Quota
+                    Terpakai / Kuota
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Last used
+                    Terakhir digunakan
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Created
+                    Dibuat
                   </th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">
-                    Action
+                    Aksi
                   </th>
                 </tr>
               </thead>
@@ -106,11 +106,11 @@ export default async function AdminKeysPage() {
                                 : "text-zinc-300"
                             }
                           >
-                            {used.toLocaleString()}
+                            {used.toLocaleString("id-ID")}
                           </span>
                           <span className="text-zinc-600"> / </span>
                           <span className="text-zinc-400">
-                            {quota.toLocaleString()}
+                            {quota.toLocaleString("id-ID")}
                           </span>
                         </div>
                         <div className="w-24 h-1 bg-zinc-800 rounded-full mt-1 ml-auto overflow-hidden">
@@ -129,14 +129,14 @@ export default async function AdminKeysPage() {
                       <td className="px-4 py-2 text-xs text-zinc-500">
                         {k.last_used_at
                           ? formatRelativeTime(k.last_used_at)
-                          : "Never"}
+                          : "Belum pernah"}
                       </td>
                       <td className="px-4 py-2 text-xs text-zinc-500">
                         {formatRelativeTime(k.created_at)}
                       </td>
                       <td className="px-4 py-2 text-right">
                         {k.revoked ? (
-                          <span className="text-xs text-zinc-600">revoked</span>
+                          <span className="text-xs text-zinc-600">dicabut</span>
                         ) : (
                           <RevokeKeyButton keyId={k.id} />
                         )}
@@ -153,14 +153,14 @@ export default async function AdminKeysPage() {
       {/* User-issued (USD-credit) keys */}
       <div>
         <h2 className="text-lg font-semibold text-zinc-50 mb-3">
-          User-issued keys{" "}
+          Key terbitan pengguna{" "}
           <span className="text-sm font-normal text-zinc-500">
             ({userIssued.length})
           </span>
         </h2>
         {userIssued.length === 0 ? (
           <div className="glass rounded-xl p-12 text-center">
-            <p className="text-sm text-zinc-400">No user-issued keys yet.</p>
+            <p className="text-sm text-zinc-400">Belum ada key terbitan pengguna.</p>
           </div>
         ) : (
           <div className="glass rounded-xl overflow-x-auto">
@@ -168,22 +168,22 @@ export default async function AdminKeysPage() {
               <thead>
                 <tr className="border-b border-zinc-800/60">
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Name
+                    Nama
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Prefix
+                    Awalan
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    User ID
+                    ID Pengguna
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Last used
+                    Terakhir digunakan
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
-                    Created
+                    Dibuat
                   </th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">
-                    Action
+                    Aksi
                   </th>
                 </tr>
               </thead>
@@ -207,14 +207,14 @@ export default async function AdminKeysPage() {
                     <td className="px-4 py-2 text-xs text-zinc-500">
                       {k.last_used_at
                         ? formatRelativeTime(k.last_used_at)
-                        : "Never"}
+                        : "Belum pernah"}
                     </td>
                     <td className="px-4 py-2 text-xs text-zinc-500">
                       {formatRelativeTime(k.created_at)}
                     </td>
                     <td className="px-4 py-2 text-right">
                       {k.revoked ? (
-                        <span className="text-xs text-zinc-600">revoked</span>
+                        <span className="text-xs text-zinc-600">dicabut</span>
                       ) : (
                         <RevokeKeyButton keyId={k.id} />
                       )}

@@ -4,6 +4,17 @@ import { UserActions } from "./user-actions";
 
 export const dynamic = "force-dynamic";
 
+const STATUS_LABEL: Record<string, string> = {
+  approved: "disetujui",
+  suspended: "ditangguhkan",
+  waitlist: "daftar tunggu",
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  admin: "admin",
+  user: "pengguna",
+};
+
 export default async function AdminUsersPage() {
   const supabase = createServiceClient();
 
@@ -17,9 +28,10 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-2">Users</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-2">Pengguna</h1>
       <p className="text-sm text-zinc-400 mb-6">
-        {profiles?.length ?? 0} users total. Promote to admin, suspend, adjust credits.
+        Total {profiles?.length ?? 0} pengguna. Anda dapat menjadikan admin,
+        menangguhkan akun, atau menyesuaikan saldo.
       </p>
 
       <div className="glass rounded-xl overflow-x-auto">
@@ -27,11 +39,11 @@ export default async function AdminUsersPage() {
           <thead>
             <tr className="border-b border-zinc-800/60">
               <th className="text-left px-4 py-3 text-zinc-400 font-normal">Email</th>
-              <th className="text-left px-4 py-3 text-zinc-400 font-normal">Role</th>
+              <th className="text-left px-4 py-3 text-zinc-400 font-normal">Peran</th>
               <th className="text-left px-4 py-3 text-zinc-400 font-normal">Status</th>
-              <th className="text-right px-4 py-3 text-zinc-400 font-normal">Balance</th>
-              <th className="text-left px-4 py-3 text-zinc-400 font-normal">Joined</th>
-              <th className="text-right px-4 py-3 text-zinc-400 font-normal">Actions</th>
+              <th className="text-right px-4 py-3 text-zinc-400 font-normal">Saldo</th>
+              <th className="text-left px-4 py-3 text-zinc-400 font-normal">Bergabung</th>
+              <th className="text-right px-4 py-3 text-zinc-400 font-normal">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -51,7 +63,7 @@ export default async function AdminUsersPage() {
                         : "bg-zinc-800/50 text-zinc-400"
                     }`}
                   >
-                    {p.role}
+                    {ROLE_LABEL[p.role] ?? p.role}
                   </span>
                 </td>
                 <td className="px-4 py-2">
@@ -64,7 +76,7 @@ export default async function AdminUsersPage() {
                         : "bg-zinc-800/50 text-zinc-400"
                     }`}
                   >
-                    {p.status}
+                    {STATUS_LABEL[p.status] ?? p.status}
                   </span>
                 </td>
                 <td className="px-4 py-2 text-right text-emerald-400 font-mono text-xs">

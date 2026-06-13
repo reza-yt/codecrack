@@ -4,11 +4,11 @@ import { requireAdmin } from "@/lib/admin";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 
 const adminNav = [
-  { href: "/admin", icon: Home, label: "Overview" },
-  { href: "/admin/keys", icon: Key, label: "API Keys" },
-  { href: "/admin/users", icon: Users, label: "Users" },
-  { href: "/admin/usage", icon: Activity, label: "Usage" },
-  { href: "/dashboard", icon: BookOpen, label: "← Back to dashboard" },
+  { href: "/admin", icon: Home, label: "Ringkasan" },
+  { href: "/admin/keys", icon: Key, label: "API Key" },
+  { href: "/admin/users", icon: Users, label: "Pengguna" },
+  { href: "/admin/usage", icon: Activity, label: "Pemakaian" },
+  { href: "/dashboard", icon: BookOpen, label: "← Kembali ke dasbor" },
 ];
 
 export default async function AdminLayout({

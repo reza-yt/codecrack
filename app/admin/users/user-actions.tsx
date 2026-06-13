@@ -54,18 +54,18 @@ export function UserActions({ userId, email, role, status, balance }: Props) {
           onClick={() => handleRole("user")}
           disabled={pending}
           className="text-xs px-2 py-0.5 rounded text-amber-400 hover:bg-amber-500/10 disabled:opacity-50"
-          title={`Demote ${email} to user`}
+          title={`Turunkan ${email} menjadi pengguna biasa`}
         >
-          Demote
+          Turunkan
         </button>
       ) : (
         <button
           onClick={() => handleRole("admin")}
           disabled={pending}
           className="text-xs px-2 py-0.5 rounded text-amber-400 hover:bg-amber-500/10 disabled:opacity-50"
-          title={`Promote ${email} to admin`}
+          title={`Jadikan ${email} sebagai admin`}
         >
-          Make admin
+          Jadikan admin
         </button>
       )}
 
@@ -76,16 +76,16 @@ export function UserActions({ userId, email, role, status, balance }: Props) {
           disabled={pending}
           className="text-xs px-2 py-0.5 rounded text-emerald-400 hover:bg-emerald-500/10 disabled:opacity-50"
         >
-          Unsuspend
+          Pulihkan
         </button>
       ) : (
         <button
           onClick={() => handleStatus("suspended")}
           disabled={pending}
           className="text-xs px-2 py-0.5 rounded text-red-400 hover:bg-red-500/10 disabled:opacity-50"
-          title={`Suspend ${email}`}
+          title={`Tangguhkan ${email}`}
         >
-          Suspend
+          Tangguhkan
         </button>
       )}
 
@@ -105,7 +105,7 @@ export function UserActions({ userId, email, role, status, balance }: Props) {
             disabled={pending}
             className="text-xs px-2 py-0.5 rounded bg-emerald-500 text-zinc-950 disabled:opacity-50"
           >
-            Set
+            Simpan
           </button>
           <button
             onClick={() => {
@@ -123,7 +123,7 @@ export function UserActions({ userId, email, role, status, balance }: Props) {
           disabled={pending}
           className="text-xs px-2 py-0.5 rounded text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800/50 disabled:opacity-50"
         >
-          Edit $
+          Ubah saldo
         </button>
       )}
     </div>
