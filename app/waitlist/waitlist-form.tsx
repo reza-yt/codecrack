@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export function WaitlistForm() {
@@ -92,7 +93,13 @@ export function WaitlistForm() {
       )}
 
       <Button type="submit" disabled={status === "loading"} className="w-full">
-        {status === "loading" ? "Submitting..." : "Join waitlist"}
+        {status === "loading" ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+          </span>
+        ) : (
+          "Join waitlist"
+        )}
       </Button>
     </form>
   );

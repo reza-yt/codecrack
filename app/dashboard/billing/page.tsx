@@ -43,7 +43,7 @@ export default async function BillingPage() {
   const balance = Number(credits?.balance_usd ?? 0);
 
   return (
-    <div>
+    <div className="fade-in">
       <h1 className="text-2xl font-bold text-zinc-50 mb-6">Billing</h1>
 
       {/* Balance card */}

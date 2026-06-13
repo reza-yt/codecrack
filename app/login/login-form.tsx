@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
@@ -76,7 +77,13 @@ export function LoginForm() {
       )}
 
       <Button type="submit" disabled={status === "loading"} className="w-full">
-        {status === "loading" ? "Sending..." : "Send magic link"}
+        {status === "loading" ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" /> Sending...
+          </span>
+        ) : (
+          "Send magic link"
+        )}
       </Button>
     </form>
   );
