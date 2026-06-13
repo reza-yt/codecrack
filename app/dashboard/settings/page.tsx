@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FullPageSpinner } from "@/components/spinner";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SettingsPage() {
@@ -51,16 +53,11 @@ export default function SettingsPage() {
   };
 
   if (loading) {
-    return (
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-50 mb-6">Settings</h1>
-        <p className="text-zinc-500">Loading...</p>
-      </div>
-    );
+    return <FullPageSpinner label="Loading settings..." />;
   }
 
   return (
-    <div>
+    <div className="fade-in">
       <h1 className="text-2xl font-bold text-zinc-50 mb-6">Settings</h1>
 
       {/* Profile */}
@@ -90,7 +87,15 @@ export default function SettingsPage() {
             />
           </div>
           <Button onClick={handleSave} disabled={saving} size="sm">
-            {saved ? "Saved!" : saving ? "Saving..." : "Save changes"}
+            {saving ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+              </span>
+            ) : saved ? (
+              "Saved!"
+            ) : (
+              "Save changes"
+            )}
           </Button>
         </div>
       </div>

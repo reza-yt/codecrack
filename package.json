@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.47.10",
     "lucide-react": "^0.468.0",
     "next": "15.5.19",
+    "nextjs-toploader": "^3.9.17",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },

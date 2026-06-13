@@ -58,7 +58,7 @@ response = client.chat.completions.create(
 )`;
 
   return (
-    <div>
+    <div className="fade-in">
       <h1 className="text-2xl font-bold text-zinc-50 mb-6">Dashboard</h1>
 
       {/* Stat cards */}
