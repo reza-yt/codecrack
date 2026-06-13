@@ -3,47 +3,82 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+interface HealthResponse {
+  status: "ok" | "degraded" | "down";
+  gateway: { ok: true };
+  upstream: { ok: boolean; status?: number; error?: string };
+  checked_at: string;
+}
+
 export async function GET() {
-  const hermesUrl = process.env.HERMES_BASE_URL;
-  const hermesKey = process.env.HERMES_API_KEY;
+  const upstream = await checkUpstream();
+  const status: HealthResponse["status"] = upstream.ok ? "ok" : "degraded";
 
-  if (!hermesUrl) {
-    return NextResponse.json({
-      status: "degraded",
-      upstream: "not_configured",
-      timestamp: new Date().toISOString(),
-    });
+  const body: HealthResponse = {
+    status,
+    gateway: { ok: true },
+    upstream,
+    checked_at: new Date().toISOString(),
+  };
+
+  return NextResponse.json(body, {
+    status: status === "ok" ? 200 : 503,
+    headers: {
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
+async function checkUpstream(): Promise<HealthResponse["upstream"]> {
+  const base = process.env.HERMES_BASE_URL;
+  if (!base) {
+    return { ok: false, error: "HERMES_BASE_URL not set" };
   }
+  // The /v1/models endpoint is cheap and authenticated similarly to chat.
+  // We try /health first (Hermes exposes it), then fall back to /v1/models.
+  const candidates = [resolveHealthUrl(base), `${stripV1(base)}/health`];
 
-  try {
-    const start = Date.now();
-    const res = await fetch(`${hermesUrl.replace(/\/v1$/, "")}/health`, {
-      headers: hermesKey ? { Authorization: `Bearer ${hermesKey}` } : {},
-      signal: AbortSignal.timeout(5000),
-    });
-    const latency = Date.now() - start;
-
-    if (res.ok) {
-      return NextResponse.json({
-        status: "ok",
-        upstream: "healthy",
-        latency_ms: latency,
-        timestamp: new Date().toISOString(),
+  for (const url of candidates) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 4000);
+      const res = await fetch(url, {
+        method: "GET",
+        signal: ctrl.signal,
+        headers: process.env.HERMES_API_KEY
+          ? { Authorization: `Bearer ${process.env.HERMES_API_KEY}` }
+          : undefined,
+        cache: "no-store",
       });
+      clearTimeout(t);
+      if (res.ok) return { ok: true, status: res.status };
+      // Hermes /health may return 200 unauthenticated; non-2xx = degraded.
+      return { ok: false, status: res.status };
+    } catch (err) {
+      // Try next candidate.
+      if (url === candidates[candidates.length - 1]) {
+        return {
+          ok: false,
+          error: err instanceof Error ? err.message : "fetch failed",
+        };
+      }
     }
-
-    return NextResponse.json({
-      status: "degraded",
-      upstream: `unhealthy (${res.status})`,
-      latency_ms: latency,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err: any) {
-    return NextResponse.json({
-      status: "degraded",
-      upstream: "unreachable",
-      error: err?.message ?? "timeout",
-      timestamp: new Date().toISOString(),
-    });
   }
+  return { ok: false, error: "no upstream candidates reachable" };
+}
+
+function resolveHealthUrl(base: string): string {
+  // Prefer the unauthenticated /health on the same host.
+  // base is typically https://hermes.codecrack.dev/v1
+  try {
+    const u = new URL(base);
+    return `${u.protocol}//${u.host}/health`;
+  } catch {
+    return `${stripV1(base)}/health`;
+  }
+}
+
+function stripV1(base: string): string {
+  return base.replace(/\/v1\/?$/, "");
 }

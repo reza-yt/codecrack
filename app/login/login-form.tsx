@@ -1,82 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { sendMagicLink } from "./actions";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
 
-export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+export function LoginForm({ next }: { next?: string }) {
+  const [pending, startTransition] = useTransition();
+  const [result, setResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus("loading");
-    setErrorMessage("");
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const r = await sendMagicLink(fd);
+      setResult(r);
+    });
+  }
 
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) {
-        setErrorMessage(error.message);
-        setStatus("error");
-        return;
-      }
-
-      setStatus("sent");
-    } catch {
-      setErrorMessage("Network error. Try again.");
-      setStatus("error");
-    }
-  };
-
-  if (status === "sent") {
+  if (result?.ok) {
     return (
-      <div className="glass rounded-xl p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-          <span className="text-emerald-400 text-xl">✉</span>
+      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-5">
+        <div className="flex items-start gap-3">
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+          <div>
+            <p className="text-sm font-medium text-emerald-100">
+              Check your inbox
+            </p>
+            <p className="mt-1 text-xs text-emerald-200/70">
+              We sent a magic link. It expires in 1 hour. You can close this
+              tab.
+            </p>
+          </div>
         </div>
-        <h2 className="text-lg font-semibold text-zinc-50 mb-2">
-          Check your email
-        </h2>
-        <p className="text-sm text-zinc-400">
-          Magic link sent to{" "}
-          <span className="font-mono text-zinc-300">{email}</span>.
-          Click it to sign in.
-        </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass rounded-xl p-6 space-y-4">
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1.5">
+    <form onSubmit={onSubmit} className="space-y-5">
+      <label className="block">
+        <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
           Email
-        </label>
+        </span>
         <input
-          id="email"
+          name="email"
           type="email"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+          autoComplete="email"
+          placeholder="you@domain.dev"
+          className="block w-full rounded-md border border-zinc-800/70 bg-zinc-900/50 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
         />
-      </div>
+      </label>
+      {next && <input type="hidden" name="next" value={next} />}
 
-      {status === "error" && (
-        <p className="text-sm text-red-400">{errorMessage}</p>
+      {result && !result.ok && (
+        <p className="text-sm text-red-300">{result.message}</p>
       )}
 
-      <Button type="submit" disabled={status === "loading"} className="w-full">
-        {status === "loading" ? "Sending..." : "Send magic link"}
+      <Button type="submit" disabled={pending} size="lg" className="w-full">
+        {pending && <Loader2 className="h-4 w-4 animate-spin" />}
+        {pending ? "Sending…" : "Send magic link"}
       </Button>
     </form>
   );

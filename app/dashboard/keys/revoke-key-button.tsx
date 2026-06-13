@@ -1,43 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
 import { revokeApiKey } from "./actions";
+import { cn } from "@/lib/utils";
 
 export function RevokeKeyButton({ keyId }: { keyId: string }) {
-  const [step, setStep] = useState<"idle" | "confirm" | "loading">("idle");
+  const [confirming, setConfirming] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleClick = async () => {
-    if (step === "idle") {
-      setStep("confirm");
-      // Auto-reset after 3 seconds if not confirmed
-      setTimeout(() => setStep("idle"), 3000);
+  function onClick() {
+    setError(null);
+    if (!confirming) {
+      setConfirming(true);
+      // Auto-reset after 4s if user doesn't follow through.
+      setTimeout(() => setConfirming(false), 4000);
       return;
     }
-
-    if (step === "confirm") {
-      setStep("loading");
-      await revokeApiKey(keyId);
-      setStep("idle");
-    }
-  };
+    startTransition(async () => {
+      const r = await revokeApiKey(keyId);
+      if (!r.ok) {
+        setError(r.message ?? "Failed");
+        setConfirming(false);
+      }
+    });
+  }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={step === "loading"}
-      className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-        step === "confirm"
-          ? "bg-red-500/20 text-red-400 border border-red-500/30"
-          : step === "loading"
-          ? "opacity-50 text-zinc-500"
-          : "text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
-      }`}
-    >
-      {step === "confirm"
-        ? "Confirm revoke?"
-        : step === "loading"
-        ? "Revoking..."
-        : "Revoke"}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={pending}
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50",
+          confirming
+            ? "border-red-400/40 bg-red-500/15 text-red-200 hover:bg-red-500/25"
+            : "border-zinc-700/60 text-zinc-400 hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-200",
+        )}
+      >
+        {pending && <Loader2 className="h-3 w-3 animate-spin" />}
+        {pending
+          ? "Revoking…"
+          : confirming
+            ? "Confirm revoke?"
+            : "Revoke"}
+      </button>
+      {error && <p className="text-[10px] text-red-300">{error}</p>}
+    </div>
   );
 }

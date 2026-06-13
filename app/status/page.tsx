@@ -1,115 +1,116 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { StatusPill } from "@/components/status-pill";
+import { headers } from "next/headers";
 
-interface HealthData {
-  status: string;
-  upstream: string;
-  latency_ms?: number;
-  timestamp: string;
+export const metadata: Metadata = {
+  title: "Status",
+  description: "Live status for codecrack.dev gateway and the Hermes upstream.",
+};
+
+// Always render fresh — this hits /api/health.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+interface HealthPayload {
+  status: "ok" | "degraded" | "down";
+  gateway: { ok: boolean };
+  upstream: { ok: boolean; status?: number; error?: string };
+  checked_at: string;
 }
 
-export default function StatusPage() {
-  const [health, setHealth] = useState<HealthData | null>(null);
-  const [loading, setLoading] = useState(true);
+async function fetchHealth(): Promise<HealthPayload | null> {
+  try {
+    const h = await headers();
+    const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+    const proto =
+      h.get("x-forwarded-proto") ??
+      (host.startsWith("localhost") ? "http" : "https");
+    const res = await fetch(`${proto}://${host}/api/health`, {
+      cache: "no-store",
+    });
+    if (!res.ok && res.status !== 503) return null;
+    return (await res.json()) as HealthPayload;
+  } catch {
+    return null;
+  }
+}
 
-  useEffect(() => {
-    async function fetchHealth() {
-      try {
-        const res = await fetch("/api/health");
-        const data = await res.json();
-        setHealth(data);
-      } catch {
-        setHealth({
-          status: "error",
-          upstream: "unreachable",
-          timestamp: new Date().toISOString(),
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchHealth();
-  }, []);
+export default async function StatusPage() {
+  const health = await fetchHealth();
+  const overall = health?.status ?? "down";
+  const tone = overall === "ok" ? "ok" : overall === "degraded" ? "warn" : "down";
+  const label =
+    overall === "ok"
+      ? "all systems operational"
+      : overall === "degraded"
+        ? "partial outage"
+        : "major outage";
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen">
       <SiteHeader />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-16">
-        <h1 className="text-3xl font-bold text-zinc-50 mb-2">System Status</h1>
-        <p className="text-zinc-400 mb-8">
-          Real-time status of codecrack.dev gateway and upstream Hermes agent.
+      <main className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+          System status
         </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+          {label.charAt(0).toUpperCase() + label.slice(1)}
+        </h1>
 
-        {loading ? (
-          <div className="glass rounded-xl p-8 text-center">
-            <p className="text-zinc-400 font-mono text-sm">Checking status...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Gateway */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400" />
-                  </span>
-                  <div>
-                    <p className="font-medium text-zinc-50">Gateway</p>
-                    <p className="text-xs text-zinc-500 font-mono">api.codecrack.dev</p>
-                  </div>
-                </div>
-                <span className="text-sm font-mono text-emerald-400">operational</span>
-              </div>
-            </div>
+        <div className="mt-6">
+          <StatusPill tone={tone}>{label}</StatusPill>
+        </div>
 
-            {/* Hermes Upstream */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="relative flex h-3 w-3">
-                    <span
-                      className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                        health?.status === "ok" ? "bg-emerald-400" : "bg-amber-400"
-                      }`}
-                    />
-                    <span
-                      className={`relative inline-flex rounded-full h-3 w-3 ${
-                        health?.status === "ok" ? "bg-emerald-400" : "bg-amber-400"
-                      }`}
-                    />
-                  </span>
-                  <div>
-                    <p className="font-medium text-zinc-50">Hermes Agent</p>
-                    <p className="text-xs text-zinc-500 font-mono">hermes.codecrack.dev</p>
-                  </div>
-                </div>
-                <span
-                  className={`text-sm font-mono ${
-                    health?.status === "ok" ? "text-emerald-400" : "text-amber-400"
-                  }`}
-                >
-                  {health?.status === "ok" ? "operational" : "degraded"}
-                </span>
-              </div>
-              {health?.latency_ms && (
-                <p className="text-xs text-zinc-500 font-mono mt-3 pl-6">
-                  latency: {health.latency_ms}ms
-                </p>
-              )}
-            </div>
+        <div className="mt-10 divide-y divide-zinc-800/70 overflow-hidden rounded-xl border border-zinc-800/70 bg-zinc-900/30">
+          <Row
+            label="Gateway · api.codecrack.dev"
+            ok={health?.gateway.ok ?? false}
+          />
+          <Row
+            label="Upstream · hermes.codecrack.dev"
+            ok={health?.upstream.ok ?? false}
+            extra={
+              health?.upstream.error
+                ? `error: ${health.upstream.error}`
+                : health?.upstream.status
+                  ? `HTTP ${health.upstream.status}`
+                  : undefined
+            }
+          />
+        </div>
 
-            {/* Timestamp */}
-            <p className="text-xs text-zinc-500 font-mono text-center mt-6">
-              Last checked: {health?.timestamp ? new Date(health.timestamp).toLocaleString() : "—"}
-            </p>
-          </div>
-        )}
+        <p className="mt-6 font-mono text-xs text-zinc-500">
+          checked at{" "}
+          {health?.checked_at
+            ? new Date(health.checked_at).toLocaleString()
+            : "—"}
+        </p>
       </main>
       <SiteFooter />
+    </div>
+  );
+}
+
+function Row({
+  label,
+  ok,
+  extra,
+}: {
+  label: string;
+  ok: boolean;
+  extra?: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-5 py-4">
+      <div>
+        <p className="text-sm text-zinc-100">{label}</p>
+        {extra && <p className="mt-1 font-mono text-xs text-zinc-500">{extra}</p>}
+      </div>
+      <StatusPill tone={ok ? "ok" : "down"}>
+        {ok ? "operational" : "down"}
+      </StatusPill>
     </div>
   );
 }

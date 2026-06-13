@@ -2,76 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+:root {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular,
+    Menlo, Consolas, monospace;
+}
 
-@layer base {
-  * {
-    box-sizing: border-box;
-  }
+html,
+body {
+  height: 100%;
+  background: #09090b; /* zinc-950 */
+  color: #fafafa; /* zinc-50 */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
+* {
+  border-color: rgba(39, 39, 42, 0.6); /* zinc-800/60 */
+}
+
+::selection {
+  background: rgba(52, 211, 153, 0.25);
+  color: #ecfdf5;
+}
+
+/* Smooth scroll, but respect reduced motion */
+@media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-  }
-
-  body {
-    @apply bg-zinc-950 text-zinc-50 antialiased font-sans;
   }
 }
 
-@layer utilities {
-  .dot-grid {
-    background-image: radial-gradient(circle, rgba(161, 161, 170, 0.15) 1px, transparent 1px);
-    background-size: 24px 24px;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
+}
 
-  .gradient-border {
-    position: relative;
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
+/* Utility: dot grid background (hero only). Keep subtle. */
+.bg-dotgrid {
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
 
-  .gradient-border::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 0.75rem;
-    padding: 1px;
-    background: linear-gradient(
-      135deg,
-      rgba(52, 211, 153, 0.6),
-      rgba(16, 185, 129, 0.2),
-      rgba(52, 211, 153, 0.6)
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: border-rotate 4s linear infinite;
-    background-size: 200% 200%;
-  }
+/* Glass surface */
+.glass {
+  background: rgba(24, 24, 27, 0.45); /* zinc-900/45 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(39, 39, 42, 0.6);
+}
 
-  @keyframes border-rotate {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+/* Animated gradient border (used on hero code card) */
+.gradient-border {
+  position: relative;
+  border-radius: 0.75rem;
+  background: rgba(9, 9, 11, 0.7);
+  isolation: isolate;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(52, 211, 153, 0.0),
+    rgba(52, 211, 153, 0.4),
+    rgba(52, 211, 153, 0.0) 30%,
+    rgba(52, 211, 153, 0.0) 70%,
+    rgba(52, 211, 153, 0.4),
+    rgba(52, 211, 153, 0.0)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: spin 8s linear infinite;
+  z-index: -1;
+}
 
-  .glass {
-    @apply bg-zinc-900/30 backdrop-blur-md border border-zinc-800/60;
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
   }
+}
 
-  .pulse-dot {
-    @apply relative;
-  }
-
-  .pulse-dot::after {
-    content: "";
-    @apply absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75;
-  }
+/* Pretty scrollbars (only on dark) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(63, 63, 70, 0.6);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(82, 82, 91, 0.8);
 }

@@ -1,30 +1,43 @@
-import { ButtonHTMLAttributes, forwardRef } from "react";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
+type Size = "sm" | "md" | "lg";
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: Variant;
+  size?: Size;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", ...props }, ref) => {
-    const base =
-      "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 disabled:opacity-50 disabled:pointer-events-none";
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 " +
+  "disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap";
 
-    const variants = {
-      primary: "bg-emerald-500 hover:bg-emerald-400 text-zinc-950",
-      secondary:
-        "bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700",
-      ghost: "hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-50",
-      danger: "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20",
-    };
+const variants: Record<Variant, string> = {
+  primary:
+    "bg-emerald-400 text-zinc-950 hover:bg-emerald-300 shadow-sm shadow-emerald-500/20",
+  secondary:
+    "bg-zinc-800/80 text-zinc-50 hover:bg-zinc-700 border border-zinc-700/60",
+  ghost: "text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/60",
+  danger:
+    "bg-red-500/90 text-zinc-50 hover:bg-red-500 border border-red-400/30",
+  outline:
+    "border border-zinc-700/60 text-zinc-100 hover:bg-zinc-800/60 hover:border-zinc-600",
+};
 
-    const sizes = {
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-base",
-    };
+const sizes: Record<Size, string> = {
+  sm: "h-8 px-3 text-xs",
+  md: "h-9 px-4 text-sm",
+  lg: "h-11 px-6 text-base",
+};
 
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    { className, variant = "primary", size = "md", ...props },
+    ref,
+  ) {
     return (
       <button
         ref={ref}
@@ -32,9 +45,5 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       />
     );
-  }
+  },
 );
-
-Button.displayName = "Button";
-
-export { Button, type ButtonProps };

@@ -6,15 +6,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Run on everything except static assets, image optimizer, favicon,
+  // and the gateway routes (the gateway authenticates by Bearer token,
+  // not cookies — middleware is dead weight there).
   matcher: [
-    /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - api/v1/* (gateway routes use their own auth)
-     * - api/health (public health check)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api/v1|api/health).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/v1|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|woff2?)).*)",
   ],
 };

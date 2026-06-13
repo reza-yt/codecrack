@@ -1,53 +1,108 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
+export const metadata: Metadata = {
+  title: "Terms of Service",
+};
+
 export default function TermsPage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen">
       <SiteHeader />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-16">
-        <h1 className="text-3xl font-bold text-zinc-50 mb-8">Terms of Service</h1>
-        <div className="prose prose-invert prose-zinc max-w-none space-y-6 text-zinc-300 text-sm leading-relaxed">
-          <p>Last updated: January 2025</p>
+      <main className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+          Legal
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+          Terms of Service
+        </h1>
+        <p className="mt-2 font-mono text-xs text-zinc-500">
+          Last updated: {new Date().toISOString().slice(0, 10)}
+        </p>
 
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">1. Service Description</h2>
-          <p>
-            codecrack.dev provides an OpenAI-compatible API gateway to the Hermes Agent.
-            Access is invite-only and subject to approval.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">2. Account & Access</h2>
-          <p>
-            You must be approved to use the service. You are responsible for safeguarding
-            your API keys. Do not share keys publicly or embed them in client-side code.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">3. Billing</h2>
-          <p>
-            Credits are prepaid and non-refundable. Token usage is billed per request
-            based on actual consumption. Pricing may change with 7 days notice.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">4. Acceptable Use</h2>
-          <p>
-            Do not use the service for illegal activities, spam, harassment, or to bypass
-            safety measures. We reserve the right to suspend accounts that violate these terms.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">5. Limitation of Liability</h2>
-          <p>
-            The service is provided &ldquo;as is&rdquo; without warranty. We are not liable for
-            downtime, data loss, or damages arising from use of the service.
-          </p>
-
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">6. Changes</h2>
-          <p>
-            We may update these terms at any time. Continued use after changes
-            constitutes acceptance.
-          </p>
+        <div className="prose prose-invert mt-10 space-y-6 text-sm leading-relaxed text-zinc-300">
+          <Section title="1. Service">
+            <p>
+              codecrack.dev (&quot;the Service&quot;) provides an
+              OpenAI-compatible HTTP API that proxies requests to a
+              persona-locked AI agent named Hermes. By using the Service you
+              agree to these Terms.
+            </p>
+          </Section>
+          <Section title="2. Account & access">
+            <p>
+              The Service is invite-only during the MVP period. We may approve,
+              suspend, or revoke access at our discretion. You are responsible
+              for keeping your API keys secret. Anyone holding a valid key can
+              spend your balance.
+            </p>
+          </Section>
+          <Section title="3. Acceptable use">
+            <p>
+              You agree not to use the Service to generate content that is
+              illegal, harms others, infringes on intellectual property, or
+              attempts to bypass safety controls in the underlying agent. We
+              may revoke access without refund for misuse.
+            </p>
+          </Section>
+          <Section title="4. Billing">
+            <p>
+              Pricing is published at{" "}
+              <a href="/pricing" className="text-emerald-300">
+                /pricing
+              </a>
+              . Top-ups are non-refundable for tokens already consumed. Unused
+              balance carries forward indefinitely while your account is
+              active.
+            </p>
+          </Section>
+          <Section title="5. Liability">
+            <p>
+              The Service is provided &quot;as is&quot; without warranties.
+              Liability is limited to the amount paid in the prior 30 days. We
+              are not liable for indirect or consequential damages, including
+              losses from generated content.
+            </p>
+          </Section>
+          <Section title="6. Termination">
+            <p>
+              You may close your account at any time. We may suspend the
+              Service for legal, security, or operational reasons. Upon
+              termination, remaining unused balance is forfeit unless required
+              by law.
+            </p>
+          </Section>
+          <Section title="7. Contact">
+            <p>
+              Questions:{" "}
+              <a
+                href="mailto:contact@codecrack.dev"
+                className="text-emerald-300"
+              >
+                contact@codecrack.dev
+              </a>
+              .
+            </p>
+          </Section>
         </div>
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h2 className="text-base font-semibold text-zinc-100">{title}</h2>
+      <div className="mt-2 text-zinc-400">{children}</div>
+    </section>
   );
 }

@@ -1,5 +1,7 @@
--- codecrack.dev Database Schema
--- Run this in Supabase SQL Editor
+-- =============================================================================
+-- codecrack.dev — database schema
+-- Run this in Supabase SQL Editor on a fresh project.
+-- =============================================================================
 
 -- Required extension
 create extension if not exists pgcrypto;

@@ -1,215 +1,267 @@
+import Link from "next/link";
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CodeBlock } from "@/components/code-block";
 
+export const metadata: Metadata = {
+  title: "Docs",
+  description:
+    "Quickstart and API reference for the codecrack.dev OpenAI-compatible gateway.",
+};
+
 export default function DocsPage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen">
       <SiteHeader />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-16">
-        <h1 className="text-3xl font-bold text-zinc-50 mb-2">Documentation</h1>
-        <p className="text-zinc-400 mb-12">
-          Quickstart guide and API reference for codecrack.dev gateway.
-        </p>
+      <main className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6">
+        <div className="mb-10">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+            Documentation
+          </p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            Quickstart
+          </h1>
+          <p className="mt-3 max-w-2xl text-zinc-400">
+            codecrack speaks the OpenAI Chat Completions wire format. If your
+            tool already supports OpenAI, change two values dan kelar.
+          </p>
+        </div>
 
-        {/* Quickstart */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold text-zinc-50 mb-4 font-mono">
-            # Quickstart
-          </h2>
-          <ol className="space-y-4 text-zinc-300 list-decimal list-inside">
-            <li>
-              <strong className="text-zinc-50">Get access</strong> — request an
-              invite at{" "}
-              <code className="font-mono text-emerald-400">/waitlist</code> and
-              wait for approval.
-            </li>
-            <li>
-              <strong className="text-zinc-50">Create an API key</strong> — go to{" "}
-              <code className="font-mono text-emerald-400">/dashboard/keys</code>{" "}
-              and generate a new key. Copy it immediately.
-            </li>
-            <li>
-              <strong className="text-zinc-50">Make a request</strong> — use any
-              OpenAI-compatible SDK or CLI:
-            </li>
-          </ol>
+        <Section id="get-access" title="1. Get access" number="01">
+          <p className="text-zinc-400">
+            We&apos;re invite-only during MVP. Drop your email on the{" "}
+            <Link
+              href="/waitlist"
+              className="text-emerald-300 underline-offset-2 hover:underline"
+            >
+              waitlist
+            </Link>
+            . Once approved, log in via magic link and create an API key from{" "}
+            <code className="font-mono text-emerald-300">
+              /dashboard/keys
+            </code>
+            . Top up your balance from{" "}
+            <code className="font-mono text-emerald-300">
+              /dashboard/billing
+            </code>
+            .
+          </p>
+        </Section>
 
-          <div className="mt-4">
-            <CodeBlock
-              code={`from openai import OpenAI
+        <Section id="auth" title="2. Authentication" number="02">
+          <p className="text-zinc-400">
+            Send your key as a Bearer token. Keys are 40 characters, prefixed{" "}
+            <code className="font-mono text-emerald-300">cc_live_</code>, and
+            shown only once on creation. We store an SHA-256 hash —{" "}
+            <span className="text-zinc-300">we cannot recover lost keys.</span>
+          </p>
+          <CodeBlock
+            className="mt-4"
+            caption="header"
+            code={`Authorization: Bearer cc_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`}
+          />
+        </Section>
+
+        <Section id="curl" title="3. Your first request" number="03">
+          <CodeBlock
+            caption="curl · non-streaming"
+            code={`curl https://api.codecrack.dev/v1/chat/completions \\
+  -H "Authorization: Bearer $CODECRACK_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "hermes-agent",
+    "messages": [
+      {"role": "user", "content": "halo, siapa lo?"}
+    ]
+  }'`}
+          />
+        </Section>
+
+        <Section id="streaming" title="4. Streaming" number="04">
+          <p className="text-zinc-400">
+            Set{" "}
+            <code className="font-mono text-emerald-300">stream: true</code>{" "}
+            and we&apos;ll proxy SSE chunks straight from Hermes. Tool progress
+            events arrive as{" "}
+            <code className="font-mono text-emerald-300">
+              event: hermes.tool.progress
+            </code>
+            .
+          </p>
+          <CodeBlock
+            className="mt-4"
+            caption="curl · streaming"
+            code={`curl -N https://api.codecrack.dev/v1/chat/completions \\
+  -H "Authorization: Bearer $CODECRACK_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "hermes-agent",
+    "messages": [{"role":"user","content":"audit lib auth gua"}],
+    "stream": true
+  }'`}
+          />
+        </Section>
+
+        <Section id="python" title="5. Python (openai SDK)" number="05">
+          <CodeBlock
+            caption="python · openai"
+            code={`from openai import OpenAI
 
 client = OpenAI(
     base_url="https://api.codecrack.dev/v1",
-    api_key="cc_live_your_key_here"
+    api_key="cc_live_•••",
 )
 
-response = client.chat.completions.create(
+resp = client.chat.completions.create(
     model="hermes-agent",
-    messages=[{"role": "user", "content": "Halo, kerjain apa hari ini?"}],
+    messages=[{"role": "user", "content": "halo"}],
 )
+print(resp.choices[0].message.content)`}
+          />
+        </Section>
 
-print(response.choices[0].message.content)`}
-              language="python"
-            />
-          </div>
-        </section>
+        <Section id="node" title="6. Node.js (openai SDK)" number="06">
+          <CodeBlock
+            caption="node · openai"
+            code={`import OpenAI from "openai";
 
-        {/* API Reference */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold text-zinc-50 mb-4 font-mono">
-            # API Reference
-          </h2>
+const client = new OpenAI({
+  baseURL: "https://api.codecrack.dev/v1",
+  apiKey: process.env.CODECRACK_KEY,
+});
 
-          <div className="space-y-8">
-            {/* Chat Completions */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  POST
-                </span>
-                <code className="font-mono text-sm text-zinc-300">
-                  /v1/chat/completions
-                </code>
-              </div>
-              <p className="text-sm text-zinc-400 mb-4">
-                Create a chat completion. 100% OpenAI-compatible request/response format.
-              </p>
-              <h4 className="text-xs font-mono text-zinc-500 uppercase mb-2">Headers</h4>
-              <div className="text-sm font-mono text-zinc-300 space-y-1 mb-4">
-                <p>Authorization: Bearer cc_live_...</p>
-                <p>Content-Type: application/json</p>
-              </div>
-              <h4 className="text-xs font-mono text-zinc-500 uppercase mb-2">Body</h4>
-              <CodeBlock
-                code={`{
-  "model": "hermes-agent",
-  "messages": [
-    {"role": "user", "content": "your message"}
-  ],
-  "stream": true
-}`}
-                language="json"
-              />
-              <div className="mt-4">
-                <h4 className="text-xs font-mono text-zinc-500 uppercase mb-2">Notes</h4>
-                <ul className="text-xs text-zinc-400 space-y-1 list-disc list-inside">
-                  <li>
-                    <code className="font-mono">model</code> is always overridden to{" "}
-                    <code className="font-mono text-emerald-400">hermes-agent</code>
-                  </li>
-                  <li>Streaming responses use Server-Sent Events (SSE)</li>
-                  <li>Minimum ~6.6k prompt tokens per request (system prompt)</li>
-                </ul>
-              </div>
-            </div>
+const resp = await client.chat.completions.create({
+  model: "hermes-agent",
+  messages: [{ role: "user", content: "halo" }],
+});
 
-            {/* Models */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  GET
-                </span>
-                <code className="font-mono text-sm text-zinc-300">
-                  /v1/models
-                </code>
-              </div>
-              <p className="text-sm text-zinc-400 mb-4">
-                List available models. Returns a single model:{" "}
-                <code className="font-mono text-emerald-400">hermes-agent</code>.
-              </p>
-              <CodeBlock
-                code={`{
-  "object": "list",
-  "data": [
-    {
-      "id": "hermes-agent",
-      "object": "model",
-      "owned_by": "codecrack"
-    }
-  ]
-}`}
-                language="json"
-              />
-            </div>
+console.log(resp.choices[0].message.content);`}
+          />
+        </Section>
 
-            {/* Health */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  GET
-                </span>
-                <code className="font-mono text-sm text-zinc-300">
-                  /health
-                </code>
-              </div>
-              <p className="text-sm text-zinc-400">
-                Health check endpoint. Returns upstream Hermes status.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Error Codes */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold text-zinc-50 mb-4 font-mono">
-            # Error Codes
-          </h2>
-          <div className="glass rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-zinc-800/60">
-                  <th className="text-left px-4 py-3 text-zinc-400 font-mono font-normal">Code</th>
-                  <th className="text-left px-4 py-3 text-zinc-400 font-mono font-normal">Type</th>
-                  <th className="text-left px-4 py-3 text-zinc-400 font-mono font-normal">Meaning</th>
-                </tr>
-              </thead>
-              <tbody className="text-zinc-300">
-                <tr className="border-b border-zinc-800/40">
-                  <td className="px-4 py-2 font-mono">401</td>
-                  <td className="px-4 py-2 font-mono text-red-400">invalid_api_key</td>
-                  <td className="px-4 py-2">Key missing, malformed, or revoked</td>
-                </tr>
-                <tr className="border-b border-zinc-800/40">
-                  <td className="px-4 py-2 font-mono">402</td>
-                  <td className="px-4 py-2 font-mono text-amber-400">insufficient_credit</td>
-                  <td className="px-4 py-2">Balance is zero or negative</td>
-                </tr>
-                <tr className="border-b border-zinc-800/40">
-                  <td className="px-4 py-2 font-mono">403</td>
-                  <td className="px-4 py-2 font-mono text-amber-400">account_suspended</td>
-                  <td className="px-4 py-2">Account not approved or suspended</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 font-mono">400</td>
-                  <td className="px-4 py-2 font-mono text-zinc-400">invalid_request_error</td>
-                  <td className="px-4 py-2">Malformed request body</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Authentication */}
-        <section className="mb-12">
-          <h2 className="text-xl font-semibold text-zinc-50 mb-4 font-mono">
-            # Authentication
-          </h2>
-          <p className="text-zinc-400 mb-4">
-            All API requests require a Bearer token in the Authorization header.
-            Keys follow the format:
+        <Section id="reference" title="7. API reference" number="07">
+          <h3 className="mt-4 font-mono text-sm text-zinc-100">
+            POST /v1/chat/completions
+          </h3>
+          <p className="mt-2 text-zinc-400">
+            OpenAI-compatible. Required:{" "}
+            <code className="font-mono text-emerald-300">model</code>,{" "}
+            <code className="font-mono text-emerald-300">messages</code>.
+            Optional: <code className="font-mono text-emerald-300">stream</code>
+            . The model field is normalized to{" "}
+            <code className="font-mono text-emerald-300">hermes-agent</code>{" "}
+            server-side.
           </p>
-          <code className="font-mono text-emerald-400 text-sm">
-            cc_live_{"<32 alphanumeric characters>"}
-          </code>
-          <p className="text-zinc-400 mt-4">
-            Generate keys from your{" "}
-            <code className="font-mono text-emerald-400">dashboard</code>. Keys
-            are shown once at creation — store them securely.
+
+          <h3 className="mt-8 font-mono text-sm text-zinc-100">GET /v1/models</h3>
+          <p className="mt-2 text-zinc-400">
+            Returns one entry:{" "}
+            <code className="font-mono text-emerald-300">hermes-agent</code>.
           </p>
-        </section>
+
+          <h3 className="mt-8 font-mono text-sm text-zinc-100">
+            GET /api/health
+          </h3>
+          <p className="mt-2 text-zinc-400">
+            Liveness + upstream healthcheck. Returns{" "}
+            <code className="font-mono text-emerald-300">
+              {`{"status":"ok"|"degraded"}`}
+            </code>
+            .
+          </p>
+        </Section>
+
+        <Section id="errors" title="8. Errors" number="08">
+          <p className="text-zinc-400">
+            Errors mirror OpenAI&apos;s shape. The{" "}
+            <code className="font-mono text-emerald-300">type</code> field is
+            machine-readable.
+          </p>
+          <CodeBlock
+            className="mt-4"
+            caption="error · 401"
+            code={`{
+  "error": {
+    "type": "invalid_api_key",
+    "message": "Invalid API key",
+    "code": 401
+  }
+}`}
+          />
+          <table className="mt-6 w-full overflow-hidden rounded-lg border border-zinc-800/70 text-sm">
+            <thead className="bg-zinc-900/60 text-left text-xs uppercase tracking-wider text-zinc-500">
+              <tr>
+                <th className="px-4 py-2 font-mono">code</th>
+                <th className="px-4 py-2 font-mono">type</th>
+                <th className="px-4 py-2">when</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono text-xs text-zinc-300">
+              <tr className="border-t border-zinc-800/70">
+                <td className="px-4 py-2">400</td>
+                <td className="px-4 py-2">invalid_request_error</td>
+                <td className="px-4 py-2 font-sans text-zinc-400">
+                  malformed JSON or missing fields
+                </td>
+              </tr>
+              <tr className="border-t border-zinc-800/70">
+                <td className="px-4 py-2">401</td>
+                <td className="px-4 py-2">invalid_api_key</td>
+                <td className="px-4 py-2 font-sans text-zinc-400">
+                  missing, malformed, or revoked key
+                </td>
+              </tr>
+              <tr className="border-t border-zinc-800/70">
+                <td className="px-4 py-2">402</td>
+                <td className="px-4 py-2">insufficient_credit</td>
+                <td className="px-4 py-2 font-sans text-zinc-400">
+                  balance ≤ $0 — top up at /dashboard/billing
+                </td>
+              </tr>
+              <tr className="border-t border-zinc-800/70">
+                <td className="px-4 py-2">403</td>
+                <td className="px-4 py-2">waitlist / account_suspended</td>
+                <td className="px-4 py-2 font-sans text-zinc-400">
+                  not yet approved or status flipped
+                </td>
+              </tr>
+              <tr className="border-t border-zinc-800/70">
+                <td className="px-4 py-2">502</td>
+                <td className="px-4 py-2">upstream_error</td>
+                <td className="px-4 py-2 font-sans text-zinc-400">
+                  Hermes returned non-2xx or tunnel dropped
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </Section>
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function Section({
+  id,
+  title,
+  number,
+  children,
+}: {
+  id: string;
+  title: string;
+  number: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="mt-12 scroll-mt-20">
+      <div className="mb-3 flex items-center gap-3">
+        <span className="font-mono text-xs text-emerald-400">{number}</span>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100">
+          {title}
+        </h2>
+      </div>
+      <div className="space-y-2 text-sm">{children}</div>
+    </section>
   );
 }
