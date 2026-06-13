@@ -6,7 +6,8 @@ import { generateApiKey } from "@/lib/api-keys";
 import { requireAdmin } from "@/lib/admin";
 
 const MAX_BULK_KEYS = 100;
-const MAX_TOKEN_QUOTA = 1_000_000_000; // 1 billion tokens hard cap per key
+// Hard cap kuota per key: 1 milyar token. Mencegah salah ketik.
+const MAX_TOKEN_QUOTA = 1_000_000_000;
 
 interface BulkGenResult {
   success?: boolean;
@@ -18,8 +19,9 @@ interface BulkGenResult {
 /**
  * Bulk-generate quota-based API keys.
  *
- * Returns plaintext keys ONCE — the admin must copy/save them right away,
- * since key_hash is stored after this and the plaintext is unrecoverable.
+ * Returns plaintext keys ONCE — admin harus copy/save sekarang juga
+ * karena setelah ini hanya hash yang disimpan dan plaintext tidak bisa
+ * dipulihkan.
  */
 export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResult> {
   const { user } = await requireAdmin();
@@ -56,7 +58,7 @@ export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResul
     const name = count === 1 ? namePrefix : `${namePrefix}-${i + 1}`;
     generated.push({ name, fullKey, tokenQuota });
     rows.push({
-      user_id: null, // floating admin-issued key
+      user_id: null,
       name,
       key_hash: hash,
       key_prefix: prefix,
@@ -86,64 +88,5 @@ export async function revokeAdminKey(keyId: string): Promise<{ error?: string; s
     .eq("id", keyId);
   if (error) return { error: error.message };
   revalidatePath("/admin/keys");
-  return { success: true };
-}
-
-export async function setUserRole(
-  userId: string,
-  role: "user" | "admin"
-): Promise<{ error?: string; success?: boolean }> {
-  const { user } = await requireAdmin();
-
-  if (userId === user.id && role !== "admin") {
-    return { error: "Tidak dapat menurunkan peran diri sendiri. Mintalah admin lain untuk melakukannya." };
-  }
-
-  const supabase = createServiceClient();
-  const { error } = await supabase
-    .from("profiles")
-    .update({ role })
-    .eq("id", userId);
-  if (error) return { error: error.message };
-  revalidatePath("/admin/users");
-  return { success: true };
-}
-
-export async function setUserStatus(
-  userId: string,
-  status: "approved" | "suspended" | "waitlist"
-): Promise<{ error?: string; success?: boolean }> {
-  await requireAdmin();
-  const supabase = createServiceClient();
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      status,
-      approved_at: status === "approved" ? new Date().toISOString() : null,
-    })
-    .eq("id", userId);
-  if (error) return { error: error.message };
-  revalidatePath("/admin/users");
-  return { success: true };
-}
-
-export async function adjustCredits(
-  userId: string,
-  newBalance: number
-): Promise<{ error?: string; success?: boolean }> {
-  await requireAdmin();
-  if (!Number.isFinite(newBalance) || newBalance < 0) {
-    return { error: "Saldo harus bernilai 0 atau lebih besar." };
-  }
-  const supabase = createServiceClient();
-  const { error } = await supabase
-    .from("credits")
-    .upsert({
-      user_id: userId,
-      balance_usd: newBalance,
-      updated_at: new Date().toISOString(),
-    });
-  if (error) return { error: error.message };
-  revalidatePath("/admin/users");
   return { success: true };
 }

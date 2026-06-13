@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { Key, Users, Activity, Home, BookOpen, ShieldAlert } from "lucide-react";
+import { Key, Activity, Home, BookOpen, ShieldAlert } from "lucide-react";
 import { requireAdmin } from "@/lib/admin";
-import { LogoutButton } from "@/app/dashboard/logout-button";
+import { LogoutButton } from "@/components/logout-button";
 
 const adminNav = [
   { href: "/admin", icon: Home, label: "Ringkasan" },
   { href: "/admin/keys", icon: Key, label: "API Key" },
-  { href: "/admin/users", icon: Users, label: "Pengguna" },
   { href: "/admin/usage", icon: Activity, label: "Pemakaian" },
-  { href: "/dashboard", icon: BookOpen, label: "← Kembali ke dasbor" },
+  { href: "/docs", icon: BookOpen, label: "Dokumentasi" },
 ];
 
 export default async function AdminLayout({
