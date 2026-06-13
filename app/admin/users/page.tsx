@@ -18,30 +18,25 @@ const ROLE_LABEL: Record<string, string> = {
 export default async function AdminUsersPage() {
   const supabase = createServiceClient();
 
-  const [{ data: profiles }, { data: credits }] = await Promise.all([
-    supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-    supabase.from("credits").select("user_id, balance_usd"),
-  ]);
-
-  const balanceMap = new Map<string, number>();
-  (credits ?? []).forEach((c: any) => balanceMap.set(c.user_id, Number(c.balance_usd)));
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   return (
     <div className="fade-in">
       <h1 className="text-2xl font-bold text-zinc-50 mb-2">Pengguna</h1>
       <p className="text-sm text-zinc-400 mb-6">
-        Total {profiles?.length ?? 0} pengguna. Anda dapat menjadikan admin,
-        menangguhkan akun, atau menyesuaikan saldo.
+        Total {profiles?.length ?? 0} pengguna. Anda dapat menjadikan admin atau menangguhkan akun.
       </p>
 
       <div className="glass rounded-xl overflow-x-auto">
-        <table className="w-full text-sm min-w-[800px]">
+        <table className="w-full text-sm min-w-[700px]">
           <thead>
             <tr className="border-b border-zinc-800/60">
               <th className="text-left px-4 py-3 text-zinc-400 font-normal">Email</th>
               <th className="text-left px-4 py-3 text-zinc-400 font-normal">Peran</th>
               <th className="text-left px-4 py-3 text-zinc-400 font-normal">Status</th>
-              <th className="text-right px-4 py-3 text-zinc-400 font-normal">Saldo</th>
               <th className="text-left px-4 py-3 text-zinc-400 font-normal">Bergabung</th>
               <th className="text-right px-4 py-3 text-zinc-400 font-normal">Aksi</th>
             </tr>
@@ -79,9 +74,6 @@ export default async function AdminUsersPage() {
                     {STATUS_LABEL[p.status] ?? p.status}
                   </span>
                 </td>
-                <td className="px-4 py-2 text-right text-emerald-400 font-mono text-xs">
-                  ${(balanceMap.get(p.id) ?? 0).toFixed(2)}
-                </td>
                 <td className="px-4 py-2 text-zinc-500 text-xs">
                   {formatDate(p.created_at)}
                 </td>
@@ -91,7 +83,6 @@ export default async function AdminUsersPage() {
                     email={p.email}
                     role={p.role}
                     status={p.status}
-                    balance={balanceMap.get(p.id) ?? 0}
                   />
                 </td>
               </tr>

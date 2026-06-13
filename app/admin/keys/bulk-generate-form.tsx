@@ -13,10 +13,12 @@ const QUOTA_PRESETS = [
   { label: "50JT", value: 50_000_000 },
 ];
 
+const DEFAULT_QUOTA = 10_000_000;
+
 export function BulkGenerateForm() {
   const [pending, startTransition] = useTransition();
   const [count, setCount] = useState(5);
-  const [tokenQuota, setTokenQuota] = useState(10_000_000);
+  const [tokenQuota, setTokenQuota] = useState(DEFAULT_QUOTA);
   const [namePrefix, setNamePrefix] = useState("resell");
   const [batchLabel, setBatchLabel] = useState("");
 
@@ -174,6 +176,9 @@ export function BulkGenerateForm() {
               </button>
             ))}
           </div>
+          <p className="text-[11px] text-zinc-500 mt-2">
+            Default: 10 juta token per key.
+          </p>
         </div>
       </div>
 

@@ -19,19 +19,19 @@ export default function DocsPage() {
           </h2>
           <ol className="space-y-4 text-zinc-300 list-decimal list-inside">
             <li>
-              <strong className="text-zinc-50">Ajukan akses</strong>: kirim
-              permohonan undangan melalui{" "}
-              <code className="font-mono text-emerald-400">/waitlist</code> dan
-              tunggu persetujuan.
+              <strong className="text-zinc-50">Dapatkan API key</strong>:
+              hubungi penerbit untuk mendapatkan API key beserta kuota token.
             </li>
             <li>
-              <strong className="text-zinc-50">Buat API key</strong>: kunjungi{" "}
-              <code className="font-mono text-emerald-400">/dashboard/keys</code>{" "}
-              dan buat key baru. Salin key tersebut segera setelah dibuat.
+              <strong className="text-zinc-50">Konfigurasi klien</strong>:
+              gunakan SDK atau CLI apa pun yang kompatibel dengan OpenAI dengan{" "}
+              <code className="font-mono text-emerald-400">base_url</code>{" "}
+              <code className="font-mono">https://api.codecrack.dev/v1</code>.
             </li>
             <li>
               <strong className="text-zinc-50">Kirim permintaan</strong>:
-              gunakan SDK atau CLI apa pun yang kompatibel dengan OpenAI:
+              tetapkan <code className="font-mono">model</code> ke{" "}
+              <code className="font-mono text-emerald-400">codecrack</code> dan kirim pesan seperti pada OpenAI:
             </li>
           </ol>
 
@@ -77,7 +77,7 @@ print(response.choices[0].message.content)`}
               </p>
               <h4 className="text-xs font-mono text-zinc-500 uppercase mb-2">Header</h4>
               <div className="text-sm font-mono text-zinc-300 space-y-1 mb-4">
-                <p>Authorization: Bearer cc_live_•••</p>
+                <p>{`Authorization: Bearer <API_KEY_ANDA>`}</p>
                 <p>Content-Type: application/json</p>
               </div>
               <h4 className="text-xs font-mono text-zinc-500 uppercase mb-2">Body</h4>
@@ -99,7 +99,7 @@ print(response.choices[0].message.content)`}
                     <code className="font-mono text-emerald-400">codecrack</code>.
                   </li>
                   <li>Respons streaming menggunakan Server-Sent Events (SSE).</li>
-                  <li>Setiap permintaan minimum sekitar 6.600 token prompt (system prompt).</li>
+                  <li>Setiap API key memiliki kuota token tersendiri yang dipantau secara otomatis.</li>
                 </ul>
               </div>
             </div>
@@ -144,7 +144,7 @@ print(response.choices[0].message.content)`}
                 </code>
               </div>
               <p className="text-sm text-zinc-400">
-                Endpoint pemeriksaan kesehatan. Mengembalikan status layanan upstream Hermes.
+                Endpoint pemeriksaan kesehatan. Mengembalikan status layanan model AI.
               </p>
             </div>
           </div>
@@ -172,13 +172,8 @@ print(response.choices[0].message.content)`}
                 </tr>
                 <tr className="border-b border-zinc-800/40">
                   <td className="px-4 py-2 font-mono">402</td>
-                  <td className="px-4 py-2 font-mono text-amber-400">insufficient_credit</td>
-                  <td className="px-4 py-2">Saldo nol atau negatif.</td>
-                </tr>
-                <tr className="border-b border-zinc-800/40">
-                  <td className="px-4 py-2 font-mono">402</td>
                   <td className="px-4 py-2 font-mono text-amber-400">quota_exhausted</td>
-                  <td className="px-4 py-2">Kuota token pada key telah habis.</td>
+                  <td className="px-4 py-2">Kuota token pada key telah habis. Hubungi penerbit untuk key baru.</td>
                 </tr>
                 <tr className="border-b border-zinc-800/40">
                   <td className="px-4 py-2 font-mono">403</td>
@@ -208,9 +203,8 @@ print(response.choices[0].message.content)`}
             cc_live_{"<32 karakter alfanumerik>"}
           </code>
           <p className="text-zinc-400 mt-4">
-            Buat key melalui{" "}
-            <code className="font-mono text-emerald-400">dasbor</code>. Key hanya
-            ditampilkan satu kali pada saat pembuatan, jadi pastikan Anda menyimpannya dengan aman.
+            Setiap key hanya ditampilkan satu kali pada saat pembuatan, jadi pastikan
+            Anda menyimpannya dengan aman.
           </p>
         </section>
       </main>

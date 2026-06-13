@@ -40,7 +40,7 @@ export default function StatusPage() {
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-16">
         <h1 className="text-3xl font-bold text-zinc-50 mb-2">Status sistem</h1>
         <p className="text-zinc-400 mb-8">
-          Status real-time gateway codecrack.dev dan agen Hermes upstream.
+          Status real-time gateway codecrack.dev dan layanan model AI.
         </p>
 
         {loading ? (
@@ -66,7 +66,7 @@ export default function StatusPage() {
               </div>
             </div>
 
-            {/* Hermes Upstream */}
+            {/* Model AI */}
             <div className="glass rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -83,8 +83,8 @@ export default function StatusPage() {
                     />
                   </span>
                   <div>
-                    <p className="font-medium text-zinc-50">Agen Hermes</p>
-                    <p className="text-xs text-zinc-500 font-mono">hermes.codecrack.dev</p>
+                    <p className="font-medium text-zinc-50">Model AI</p>
+                    <p className="text-xs text-zinc-500 font-mono">codecrack</p>
                   </div>
                 </div>
                 <span
