@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Home, Key, Activity, Wallet, Settings, BookOpen } from "lucide-react";
+import { Home, Key, Activity, Wallet, Settings, BookOpen, ShieldAlert } from "lucide-react";
 import { LogoutButton } from "./logout-button";
 
-const navItems = [
+const baseNav = [
   { href: "/dashboard", icon: Home, label: "Overview" },
   { href: "/dashboard/keys", icon: Key, label: "API Keys" },
   { href: "/dashboard/usage", icon: Activity, label: "Usage" },
@@ -26,6 +26,22 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/login");
   }
+
+  // Surface admin link only if the user is an admin (one extra round-trip,
+  // negligible compared to the page render itself).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
+  const navItems = isAdmin
+    ? [
+        ...baseNav,
+        { href: "/admin", icon: ShieldAlert, label: "Admin" },
+      ]
+    : baseNav;
 
   return (
     <div className="min-h-screen flex">
