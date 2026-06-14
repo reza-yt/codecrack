@@ -14,10 +14,16 @@ begin;
 alter table api_keys
   add column if not exists expires_at timestamptz;
 
--- Index untuk filter active+not-expired keys (gateway hot path)
-create index if not exists idx_api_keys_active
+-- Index untuk filter active+not-expired keys (gateway hot path).
+-- Catatan: Postgres tidak izinkan now() di partial index predicate karena
+-- now() bukan IMMUTABLE. Kita filter expired di query layer aja, dan tetap
+-- kasih index buat (revoked, expires_at) supaya gateway lookup tetap cepat.
+create index if not exists idx_api_keys_lookup
   on api_keys(key_hash)
-  where revoked = false and (expires_at is null or expires_at > now());
+  where revoked = false;
+create index if not exists idx_api_keys_expires
+  on api_keys(expires_at)
+  where expires_at is not null;
 
 -- 2. Update consume_tokens() supaya tolak key yang sudah expired.
 --    Schema migration 002 punya consume_tokens dengan signature:
