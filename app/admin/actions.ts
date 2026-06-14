@@ -8,6 +8,8 @@ import { requireAdmin } from "@/lib/admin";
 const MAX_BULK_KEYS = 100;
 // Hard cap kuota per key: 1 milyar token. Mencegah salah ketik.
 const MAX_TOKEN_QUOTA = 1_000_000_000;
+// Hard cap masa berlaku: 10 tahun. 0 = tidak pernah expire.
+const MAX_EXPIRY_DAYS = 3650;
 
 interface BulkGenResult {
   success?: boolean;
@@ -28,6 +30,7 @@ export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResul
 
   const count = parseInt(String(formData.get("count") ?? "1"), 10);
   const tokenQuota = parseInt(String(formData.get("tokenQuota") ?? "0"), 10);
+  const expiryDays = parseInt(String(formData.get("expiryDays") ?? "0"), 10);
   const namePrefix = String(formData.get("namePrefix") ?? "key").trim();
   const batchLabel =
     String(formData.get("batchLabel") ?? "").trim() ||
@@ -44,11 +47,28 @@ export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResul
   if (tokenQuota > MAX_TOKEN_QUOTA) {
     return { error: `Kuota token tidak boleh melebihi ${MAX_TOKEN_QUOTA.toLocaleString("id-ID")}.` };
   }
+  if (!Number.isFinite(expiryDays) || expiryDays < 0) {
+    return { error: "Masa berlaku harus 0 atau angka positif (0 = tidak pernah expire)." };
+  }
+  if (expiryDays > MAX_EXPIRY_DAYS) {
+    return {
+      error: `Masa berlaku maksimal ${MAX_EXPIRY_DAYS} hari (~${Math.floor(
+        MAX_EXPIRY_DAYS / 365
+      )} tahun).`,
+    };
+  }
   if (!/^[A-Za-z0-9_\- ]{1,40}$/.test(namePrefix)) {
     return { error: "Awalan nama harus alfanumerik (1 sampai 40 karakter)." };
   }
 
   const supabase = createServiceClient();
+
+  // Hitung expires_at sekali, supaya semua key di batch yang sama punya
+  // ujung waktu yang seragam. expiryDays === 0 → null (permanent).
+  const expiresAt =
+    expiryDays > 0
+      ? new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
 
   const generated: Array<{ name: string; fullKey: string; tokenQuota: number }> = [];
   const rows: any[] = [];
@@ -66,6 +86,7 @@ export async function bulkGenerateKeys(formData: FormData): Promise<BulkGenResul
       tokens_used: 0,
       batch_label: batchLabel,
       issued_by: user.id,
+      expires_at: expiresAt,
     });
   }
 
@@ -89,4 +110,59 @@ export async function revokeAdminKey(keyId: string): Promise<{ error?: string; s
   if (error) return { error: error.message };
   revalidatePath("/admin/keys");
   return { success: true };
+}
+
+/**
+ * Perpanjang masa berlaku key. Tambah `days` hari dari titik:
+ *   - sekarang, kalau key sudah expired atau belum punya expires_at
+ *   - expires_at sekarang, kalau key masih aktif (extend di akhir)
+ *
+ * days = 0 dianggap "set permanent" (expires_at = null).
+ */
+export async function extendApiKey(
+  keyId: string,
+  days: number
+): Promise<{ error?: string; success?: boolean; newExpiresAt?: string | null }> {
+  await requireAdmin();
+
+  if (!Number.isFinite(days) || days < 0 || days > MAX_EXPIRY_DAYS) {
+    return { error: `Hari perpanjangan harus 0 sampai ${MAX_EXPIRY_DAYS}.` };
+  }
+
+  const supabase = createServiceClient();
+
+  // Set permanent
+  if (days === 0) {
+    const { error } = await supabase
+      .from("api_keys")
+      .update({ expires_at: null })
+      .eq("id", keyId);
+    if (error) return { error: error.message };
+    revalidatePath("/admin/keys");
+    return { success: true, newExpiresAt: null };
+  }
+
+  // Ambil expires_at sekarang untuk decide base point
+  const { data: row, error: readErr } = await supabase
+    .from("api_keys")
+    .select("expires_at")
+    .eq("id", keyId)
+    .single();
+  if (readErr || !row) {
+    return { error: readErr?.message ?? "Key tidak ditemukan." };
+  }
+
+  const now = Date.now();
+  const cur = row.expires_at ? new Date(row.expires_at).getTime() : 0;
+  const base = cur > now ? cur : now;
+  const newExpiresAt = new Date(base + days * 24 * 60 * 60 * 1000).toISOString();
+
+  const { error } = await supabase
+    .from("api_keys")
+    .update({ expires_at: newExpiresAt })
+    .eq("id", keyId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/keys");
+  return { success: true, newExpiresAt };
 }

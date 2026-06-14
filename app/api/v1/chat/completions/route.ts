@@ -40,13 +40,25 @@ export async function POST(request: NextRequest) {
 
   const { data: keyData, error: keyError } = await supabase
     .from("api_keys")
-    .select("id, user_id, token_quota, tokens_used")
+    .select("id, user_id, token_quota, tokens_used, expires_at")
     .eq("key_hash", keyHash)
     .eq("revoked", false)
     .single();
 
   if (keyError || !keyData) {
     return errorResponse("invalid_api_key", "Invalid API key", 401);
+  }
+
+  // Check expiry first — applies to both quota and USD-credit keys.
+  if (
+    keyData.expires_at &&
+    new Date(keyData.expires_at).getTime() <= Date.now()
+  ) {
+    return errorResponse(
+      "key_expired",
+      `API key expired on ${new Date(keyData.expires_at).toISOString()}. Contact your reseller for a new key.`,
+      401
+    );
   }
 
   const { id: apiKeyId, user_id: userId } = keyData;
