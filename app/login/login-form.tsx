@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { isAdminEmail } from "@/lib/owner";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -15,10 +16,21 @@ export function LoginForm() {
     setStatus("loading");
     setErrorMessage("");
 
+    const normalized = email.trim().toLowerCase();
+
+    // Hard-lock: hanya email pemilik yang boleh request magic link.
+    // Defense-in-depth: walaupun seseorang bypass cek ini, trigger
+    // handle_new_user di Supabase juga akan menolak.
+    if (!isAdminEmail(normalized)) {
+      setErrorMessage("Akses ditolak. Email Anda tidak diperbolehkan.");
+      setStatus("error");
+      return;
+    }
+
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
+        email: normalized,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
@@ -59,7 +71,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="glass rounded-xl p-6 space-y-4">
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1.5">
-          Email
+          Email pemilik
         </label>
         <input
           id="email"
@@ -67,9 +79,13 @@ export function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="anda@contoh.com"
+          placeholder="email@contoh.com"
           className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50"
         />
+        <p className="text-[11px] text-zinc-500 mt-1.5">
+          codecrack.dev hanya dapat diakses oleh pemilik. Email selain pemilik
+          akan otomatis ditolak.
+        </p>
       </div>
 
       {status === "error" && (

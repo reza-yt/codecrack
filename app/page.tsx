@@ -96,14 +96,8 @@ export default async function LandingPage({
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
             <Link
-              href="/waitlist"
-              className="inline-flex items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-medium px-6 py-3 transition-colors"
-            >
-              Ajukan akses
-            </Link>
-            <Link
               href="/docs"
-              className="inline-flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-50 border border-zinc-700 font-medium px-6 py-3 transition-colors"
+              className="inline-flex items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-medium px-6 py-3 transition-colors"
             >
               Baca dokumentasi
             </Link>

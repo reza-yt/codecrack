@@ -31,12 +31,6 @@ export function SiteHeader() {
           >
             Masuk
           </Link>
-          <Link
-            href="/waitlist"
-            className="inline-flex items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-medium px-4 py-1.5 text-sm transition-colors"
-          >
-            Ajukan akses
-          </Link>
         </div>
       </div>
     </header>
