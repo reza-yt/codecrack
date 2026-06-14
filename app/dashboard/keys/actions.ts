@@ -11,7 +11,7 @@ export async function createApiKey(name: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Not authenticated" };
+    return { error: "Tidak terautentikasi." };
   }
 
   // Check active key limit (10 max)
@@ -22,20 +22,20 @@ export async function createApiKey(name: string) {
     .eq("revoked", false);
 
   if ((count ?? 0) >= 10) {
-    return { error: "Maximum 10 active keys. Revoke one to create another." };
+    return { error: "Maksimal 10 key aktif. Cabut salah satu untuk membuat key baru." };
   }
 
   const { fullKey, prefix, hash } = generateApiKey();
 
   const { error } = await supabase.from("api_keys").insert({
     user_id: user.id,
-    name: name.trim() || "Untitled key",
+    name: name.trim() || "Key tanpa nama",
     key_hash: hash,
     key_prefix: prefix,
   });
 
   if (error) {
-    return { error: "Failed to create key. Try again." };
+    return { error: "Gagal membuat key. Silakan coba lagi." };
   }
 
   revalidatePath("/dashboard/keys");
@@ -49,7 +49,7 @@ export async function revokeApiKey(keyId: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Not authenticated" };
+    return { error: "Tidak terautentikasi." };
   }
 
   const { error } = await supabase
@@ -59,7 +59,7 @@ export async function revokeApiKey(keyId: string) {
     .eq("user_id", user.id);
 
   if (error) {
-    return { error: "Failed to revoke key." };
+    return { error: "Gagal mencabut key." };
   }
 
   revalidatePath("/dashboard/keys");

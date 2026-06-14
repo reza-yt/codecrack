@@ -1,16 +1,16 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Home, Key, Activity, Wallet, Settings, BookOpen } from "lucide-react";
+import { Home, Key, Activity, Wallet, Settings, BookOpen, ShieldAlert } from "lucide-react";
 import { LogoutButton } from "./logout-button";
 
-const navItems = [
-  { href: "/dashboard", icon: Home, label: "Overview" },
-  { href: "/dashboard/keys", icon: Key, label: "API Keys" },
-  { href: "/dashboard/usage", icon: Activity, label: "Usage" },
-  { href: "/dashboard/billing", icon: Wallet, label: "Billing" },
-  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
-  { href: "/docs", icon: BookOpen, label: "Docs" },
+const baseNav = [
+  { href: "/dashboard", icon: Home, label: "Ringkasan" },
+  { href: "/dashboard/keys", icon: Key, label: "API Key" },
+  { href: "/dashboard/usage", icon: Activity, label: "Pemakaian" },
+  { href: "/dashboard/billing", icon: Wallet, label: "Tagihan" },
+  { href: "/dashboard/settings", icon: Settings, label: "Pengaturan" },
+  { href: "/docs", icon: BookOpen, label: "Dokumentasi" },
 ];
 
 export default async function DashboardLayout({
@@ -26,6 +26,22 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/login");
   }
+
+  // Surface admin link only if the user is an admin (one extra round-trip,
+  // negligible compared to the page render itself).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
+  const navItems = isAdmin
+    ? [
+        ...baseNav,
+        { href: "/admin", icon: ShieldAlert, label: "Admin" },
+      ]
+    : baseNav;
 
   return (
     <div className="min-h-screen flex">

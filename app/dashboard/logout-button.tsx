@@ -19,7 +19,7 @@ export function LogoutButton() {
       className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-50 transition-colors w-full px-3 py-2 rounded-lg hover:bg-zinc-800/50"
     >
       <LogOut className="w-4 h-4" />
-      Sign out
+      Keluar
     </button>
   );
 }

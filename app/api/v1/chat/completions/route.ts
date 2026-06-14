@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
   const { data: keyData, error: keyError } = await supabase
     .from("api_keys")
-    .select("id, user_id")
+    .select("id, user_id, token_quota, tokens_used")
     .eq("key_hash", keyHash)
     .eq("revoked", false)
     .single();
@@ -50,47 +50,72 @@ export async function POST(request: NextRequest) {
   }
 
   const { id: apiKeyId, user_id: userId } = keyData;
+  const tokenQuota: number | null = keyData.token_quota
+    ? Number(keyData.token_quota)
+    : null;
+  const tokensUsed: number = Number(keyData.tokens_used ?? 0);
+  const isQuotaKey = tokenQuota !== null;
 
-  // 4. Check credits
-  const { data: credits, error: creditsError } = await supabase
-    .from("credits")
-    .select("balance_usd")
-    .eq("user_id", userId)
-    .single();
+  // 4. Authorization: token-quota keys vs USD-credit keys take different
+  //    paths. Quota keys (admin-issued resale) skip credit/profile checks
+  //    entirely — the key itself is the authorization.
+  if (isQuotaKey) {
+    if (tokensUsed >= tokenQuota) {
+      return errorResponse(
+        "quota_exhausted",
+        `Token quota exhausted (${tokensUsed.toLocaleString()} / ${tokenQuota.toLocaleString()}). Contact your reseller for a new key.`,
+        402
+      );
+    }
+  } else {
+    // Legacy USD-credit path — keys minted from the user dashboard.
+    if (!userId) {
+      return errorResponse(
+        "invalid_api_key",
+        "Key has no associated account",
+        401
+      );
+    }
 
-  if (creditsError || !credits || Number(credits.balance_usd) <= 0) {
-    return errorResponse(
-      "insufficient_credit",
-      "Insufficient credit balance. Top up at https://codecrack.dev/dashboard/billing",
-      402
-    );
-  }
+    const { data: credits, error: creditsError } = await supabase
+      .from("credits")
+      .select("balance_usd")
+      .eq("user_id", userId)
+      .single();
 
-  // 5. Check profile status
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("status")
-    .eq("id", userId)
-    .single();
+    if (creditsError || !credits || Number(credits.balance_usd) <= 0) {
+      return errorResponse(
+        "insufficient_credit",
+        "Insufficient credit balance. Top up at https://codecrack.dev/dashboard/billing",
+        402
+      );
+    }
 
-  if (profileError || !profile) {
-    return errorResponse("invalid_api_key", "Account not found", 401);
-  }
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("status")
+      .eq("id", userId)
+      .single();
 
-  if (profile.status === "waitlist") {
-    return errorResponse(
-      "waitlist",
-      "Account is on the waitlist. Wait for approval.",
-      403
-    );
-  }
+    if (profileError || !profile) {
+      return errorResponse("invalid_api_key", "Account not found", 401);
+    }
 
-  if (profile.status === "suspended") {
-    return errorResponse(
-      "account_suspended",
-      "Account is suspended. Contact support.",
-      403
-    );
+    if (profile.status === "waitlist") {
+      return errorResponse(
+        "waitlist",
+        "Account is on the waitlist. Wait for approval.",
+        403
+      );
+    }
+
+    if (profile.status === "suspended") {
+      return errorResponse(
+        "account_suspended",
+        "Account is suspended. Contact support.",
+        403
+      );
+    }
   }
 
   // 6. Parse request body
@@ -113,8 +138,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 7. Force model
-  body.model = "hermes-agent";
+  // 7. Force model name. Upstream Hermes profile is also called "codecrack",
+  //    so this matches the upstream's expected model id.
+  body.model = "codecrack";
 
   const isStreaming = body.stream === true;
 
@@ -199,16 +225,24 @@ export async function POST(request: NextRequest) {
       // after() ensures the work completes even after we return the response.
       after(async () => {
         try {
+          // Billing path differs by key type.
+          const billingOp = isQuotaKey
+            ? supabase.rpc("consume_tokens", {
+                p_api_key_id: apiKeyId,
+                p_tokens: totalTokens,
+              })
+            : supabase.rpc("deduct_credits", {
+                p_user_id: userId,
+                p_amount: cost,
+              });
+
           await Promise.all([
-            supabase.rpc("deduct_credits", {
-              p_user_id: userId,
-              p_amount: cost,
-            }),
+            billingOp,
             supabase.from("usage_logs").insert({
               user_id: userId,
               api_key_id: apiKeyId,
               request_id: parsed.id ?? null,
-              model: "hermes-agent",
+              model: "codecrack",
               prompt_tokens: promptTokens,
               completion_tokens: completionTokens,
               total_tokens: totalTokens,
@@ -328,7 +362,7 @@ export async function POST(request: NextRequest) {
           user_id: userId,
           api_key_id: apiKeyId,
           request_id: lastRequestId || null,
-          model: "hermes-agent",
+          model: "codecrack",
           prompt_tokens: 0,
           completion_tokens: 0,
           total_tokens: 0,
@@ -344,16 +378,23 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      const billingOp = isQuotaKey
+        ? supabase.rpc("consume_tokens", {
+            p_api_key_id: apiKeyId,
+            p_tokens: totalTokens,
+          })
+        : supabase.rpc("deduct_credits", {
+            p_user_id: userId,
+            p_amount: cost,
+          });
+
       await Promise.all([
-        supabase.rpc("deduct_credits", {
-          p_user_id: userId,
-          p_amount: cost,
-        }),
+        billingOp,
         supabase.from("usage_logs").insert({
           user_id: userId,
           api_key_id: apiKeyId,
           request_id: lastRequestId || null,
-          model: "hermes-agent",
+          model: "codecrack",
           prompt_tokens: totalPromptTokens,
           completion_tokens: totalCompletionTokens,
           total_tokens: totalTokens,

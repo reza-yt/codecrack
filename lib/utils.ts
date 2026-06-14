@@ -3,7 +3,7 @@ export function cn(...classes: (string | boolean | undefined | null)[]): string 
 }
 
 export function formatNumber(num: number): string {
-  return new Intl.NumberFormat("en-US").format(num);
+  return new Intl.NumberFormat("id-ID").format(num);
 }
 
 export function formatCurrency(amount: number): string {
@@ -16,7 +16,7 @@ export function formatCurrency(amount: number): string {
 }
 
 export function formatDate(date: string | Date): string {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("id-ID", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -33,10 +33,10 @@ export function formatRelativeTime(date: string | Date): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 30) return `${diffDays}d ago`;
+  if (diffMins < 1) return "baru saja";
+  if (diffMins < 60) return `${diffMins} mnt lalu`;
+  if (diffHours < 24) return `${diffHours} jam lalu`;
+  if (diffDays < 30) return `${diffDays} hari lalu`;
   return formatDate(date);
 }
 

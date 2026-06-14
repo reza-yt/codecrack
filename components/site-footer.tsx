@@ -12,13 +12,13 @@ export function SiteFooter() {
             href="/terms"
             className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors"
           >
-            Terms
+            Ketentuan
           </Link>
           <Link
             href="/privacy"
             className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors"
           >
-            Privacy
+            Privasi
           </Link>
         </div>
         <div className="font-mono text-xs text-zinc-600">

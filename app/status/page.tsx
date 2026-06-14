@@ -38,14 +38,14 @@ export default function StatusPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-16">
-        <h1 className="text-3xl font-bold text-zinc-50 mb-2">System Status</h1>
+        <h1 className="text-3xl font-bold text-zinc-50 mb-2">Status sistem</h1>
         <p className="text-zinc-400 mb-8">
-          Real-time status of codecrack.dev gateway and upstream Hermes agent.
+          Status real-time gateway codecrack.dev dan agen Hermes upstream.
         </p>
 
         {loading ? (
           <div className="glass rounded-xl p-8 text-center">
-            <p className="text-zinc-400 font-mono text-sm">Checking status...</p>
+            <p className="text-zinc-400 font-mono text-sm">Memeriksa status...</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -62,7 +62,7 @@ export default function StatusPage() {
                     <p className="text-xs text-zinc-500 font-mono">api.codecrack.dev</p>
                   </div>
                 </div>
-                <span className="text-sm font-mono text-emerald-400">operational</span>
+                <span className="text-sm font-mono text-emerald-400">operasional</span>
               </div>
             </div>
 
@@ -83,7 +83,7 @@ export default function StatusPage() {
                     />
                   </span>
                   <div>
-                    <p className="font-medium text-zinc-50">Hermes Agent</p>
+                    <p className="font-medium text-zinc-50">Agen Hermes</p>
                     <p className="text-xs text-zinc-500 font-mono">hermes.codecrack.dev</p>
                   </div>
                 </div>
@@ -92,19 +92,19 @@ export default function StatusPage() {
                     health?.status === "ok" ? "text-emerald-400" : "text-amber-400"
                   }`}
                 >
-                  {health?.status === "ok" ? "operational" : "degraded"}
+                  {health?.status === "ok" ? "operasional" : "performa menurun"}
                 </span>
               </div>
               {health?.latency_ms && (
                 <p className="text-xs text-zinc-500 font-mono mt-3 pl-6">
-                  latency: {health.latency_ms}ms
+                  latensi: {health.latency_ms}ms
                 </p>
               )}
             </div>
 
             {/* Timestamp */}
             <p className="text-xs text-zinc-500 font-mono text-center mt-6">
-              Last checked: {health?.timestamp ? new Date(health.timestamp).toLocaleString() : "—"}
+              Pemeriksaan terakhir: {health?.timestamp ? new Date(health.timestamp).toLocaleString("id-ID") : "—"}
             </p>
           </div>
         )}

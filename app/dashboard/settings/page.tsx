@@ -53,16 +53,16 @@ export default function SettingsPage() {
   };
 
   if (loading) {
-    return <FullPageSpinner label="Loading settings..." />;
+    return <FullPageSpinner label="Memuat pengaturan..." />;
   }
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Pengaturan</h1>
 
       {/* Profile */}
       <div className="glass rounded-xl p-6 mb-8">
-        <h2 className="text-lg font-semibold text-zinc-50 mb-4">Profile</h2>
+        <h2 className="text-lg font-semibold text-zinc-50 mb-4">Profil</h2>
         <div className="space-y-4 max-w-md">
           <div>
             <label className="block text-sm text-zinc-300 mb-1.5">Email</label>
@@ -72,29 +72,29 @@ export default function SettingsPage() {
               disabled
               className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-500 cursor-not-allowed"
             />
-            <p className="text-xs text-zinc-600 mt-1">Email cannot be changed.</p>
+            <p className="text-xs text-zinc-600 mt-1">Email tidak dapat diubah.</p>
           </div>
           <div>
             <label className="block text-sm text-zinc-300 mb-1.5">
-              Display name
+              Nama tampilan
             </label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your name"
+              placeholder="Nama Anda"
               className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
             />
           </div>
           <Button onClick={handleSave} disabled={saving} size="sm">
             {saving ? (
               <span className="inline-flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" /> Saving...
+                <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
               </span>
             ) : saved ? (
-              "Saved!"
+              "Tersimpan"
             ) : (
-              "Save changes"
+              "Simpan perubahan"
             )}
           </Button>
         </div>
@@ -102,15 +102,15 @@ export default function SettingsPage() {
 
       {/* Danger zone */}
       <div className="rounded-xl border border-red-500/20 p-6">
-        <h2 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h2>
+        <h2 className="text-lg font-semibold text-red-400 mb-2">Zona berbahaya</h2>
         <p className="text-sm text-zinc-400 mb-4">
-          Account deletion is permanent. All keys, usage data, and remaining
-          credits will be lost. Contact{" "}
+          Penghapusan akun bersifat permanen. Seluruh API key, data pemakaian, dan
+          sisa saldo akan hilang. Hubungi{" "}
           <code className="font-mono text-emerald-400">contact@codecrack.dev</code>{" "}
-          to request deletion.
+          untuk mengajukan penghapusan akun.
         </p>
         <Button variant="danger" size="sm" disabled>
-          Delete account (contact support)
+          Hapus akun (hubungi dukungan)
         </Button>
       </div>
     </div>

@@ -10,11 +10,11 @@ export default function WaitlistPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-zinc-50 mb-2">
-              Request Access
+              Ajukan akses
             </h1>
             <p className="text-zinc-400 text-sm">
-              codecrack.dev is invite-only. Masukin email dan use case lo,
-              kita review manual.
+              codecrack.dev hanya dapat diakses melalui undangan. Silakan masukkan
+              email beserta rencana penggunaan, lalu tim kami akan meninjau secara manual.
             </p>
           </div>
           <WaitlistForm />

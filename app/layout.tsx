@@ -3,9 +3,9 @@ import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "codecrack.dev — OpenAI-compatible gateway to Hermes",
+  title: "codecrack.dev — Gateway kompatibel OpenAI untuk Hermes",
   description:
-    "Persona-locked agent with tools, memory, and streaming. Satu base URL, satu key — pakai dari CLI mana aja.",
+    "Agen dengan persona terkunci, dilengkapi tools, memori, dan streaming. Satu base URL, satu key, dapat digunakan dari CLI mana pun.",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="id" className="dark">
       <body className="min-h-screen flex flex-col">
         <NextTopLoader
           color="#34d399"

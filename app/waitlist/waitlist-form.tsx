@@ -26,9 +26,9 @@ export function WaitlistForm() {
 
       if (error) {
         if (error.code === "23505") {
-          setErrorMessage("Email ini udah di-waitlist. Tunggu approval ya.");
+          setErrorMessage("Email ini sudah terdaftar dalam daftar tunggu. Mohon menunggu persetujuan.");
         } else {
-          setErrorMessage("Something went wrong. Try again.");
+          setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
         }
         setStatus("error");
         return;
@@ -36,7 +36,7 @@ export function WaitlistForm() {
 
       setStatus("success");
     } catch {
-      setErrorMessage("Network error. Try again.");
+      setErrorMessage("Terjadi gangguan jaringan. Silakan coba lagi.");
       setStatus("error");
     }
   };
@@ -48,11 +48,11 @@ export function WaitlistForm() {
           <span className="text-emerald-400 text-xl">✓</span>
         </div>
         <h2 className="text-lg font-semibold text-zinc-50 mb-2">
-          You&apos;re on the list
+          Anda telah terdaftar
         </h2>
         <p className="text-sm text-zinc-400">
-          Kita review manual — expect an email kalau approved.
-          Biasanya 24-48 jam.
+          Pengajuan Anda akan ditinjau secara manual. Jika disetujui, kami akan
+          mengirimkan email pemberitahuan, biasanya dalam 24 hingga 48 jam.
         </p>
       </div>
     );
@@ -70,20 +70,20 @@ export function WaitlistForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder="anda@contoh.com"
           className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50"
         />
       </div>
       <div>
         <label htmlFor="use_case" className="block text-sm font-medium text-zinc-300 mb-1.5">
-          Use case <span className="text-zinc-500">(optional)</span>
+          Rencana penggunaan <span className="text-zinc-500">(opsional)</span>
         </label>
         <textarea
           id="use_case"
           rows={3}
           value={useCase}
           onChange={(e) => setUseCase(e.target.value)}
-          placeholder="Mau pakai buat apa? CLI tool, plugin, automation..."
+          placeholder="Akan digunakan untuk apa? Contoh: tools CLI, plugin, otomasi, dan sebagainya."
           className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50 resize-none"
         />
       </div>
@@ -95,10 +95,10 @@ export function WaitlistForm() {
       <Button type="submit" disabled={status === "loading"} className="w-full">
         {status === "loading" ? (
           <span className="inline-flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+            <Loader2 className="w-4 h-4 animate-spin" /> Mengirim...
           </span>
         ) : (
-          "Join waitlist"
+          "Daftar ke daftar tunggu"
         )}
       </Button>
     </form>

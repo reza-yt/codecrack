@@ -29,7 +29,7 @@ export default async function UsagePage({
   const totalPages = Math.ceil((count ?? 0) / perPage);
 
   // CSV export data URL
-  const csvHeaders = "Timestamp,Key,Input Tokens,Output Tokens,Total Tokens,Cost,Status,Duration ms\n";
+  const csvHeaders = "Waktu,Key,Token Input,Token Output,Total Token,Biaya,Status,Durasi ms\n";
   const csvRows = (logs ?? [])
     .map(
       (log: any) =>
@@ -41,23 +41,23 @@ export default async function UsagePage({
   return (
     <div className="fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-zinc-50">Usage Logs</h1>
+        <h1 className="text-2xl font-bold text-zinc-50">Log pemakaian</h1>
         {(logs?.length ?? 0) > 0 && (
           <a
             href={`data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`}
-            download="codecrack-usage.csv"
+            download="codecrack-pemakaian.csv"
             className="text-xs text-emerald-400 hover:underline"
           >
-            Export CSV
+            Ekspor CSV
           </a>
         )}
       </div>
 
       {!logs || logs.length === 0 ? (
         <div className="glass rounded-xl p-12 text-center">
-          <p className="text-zinc-400">No usage logs yet</p>
+          <p className="text-zinc-400">Belum ada log pemakaian</p>
           <p className="text-xs text-zinc-500 mt-1">
-            Make your first API request to see activity here.
+            Lakukan permintaan API pertama Anda untuk melihat aktivitas di sini.
           </p>
         </div>
       ) : (
@@ -66,14 +66,14 @@ export default async function UsagePage({
             <table className="w-full text-sm min-w-[700px]">
               <thead>
                 <tr className="border-b border-zinc-800/60">
-                  <th className="text-left px-4 py-3 text-zinc-400 font-normal">Timestamp</th>
+                  <th className="text-left px-4 py-3 text-zinc-400 font-normal">Waktu</th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">Key</th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">In</th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">Out</th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">Total</th>
-                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Cost</th>
+                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Biaya</th>
                   <th className="text-center px-4 py-3 text-zinc-400 font-normal">Status</th>
-                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Duration</th>
+                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Durasi</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,13 +88,13 @@ export default async function UsagePage({
                       </code>
                     </td>
                     <td className="px-4 py-2 text-right text-zinc-300 font-mono text-xs">
-                      {log.prompt_tokens.toLocaleString()}
+                      {log.prompt_tokens.toLocaleString("id-ID")}
                     </td>
                     <td className="px-4 py-2 text-right text-zinc-300 font-mono text-xs">
-                      {log.completion_tokens.toLocaleString()}
+                      {log.completion_tokens.toLocaleString("id-ID")}
                     </td>
                     <td className="px-4 py-2 text-right text-zinc-300 font-mono text-xs">
-                      {log.total_tokens.toLocaleString()}
+                      {log.total_tokens.toLocaleString("id-ID")}
                     </td>
                     <td className="px-4 py-2 text-right text-emerald-400 font-mono text-xs">
                       {formatCurrency(Number(log.cost_usd))}
@@ -127,7 +127,7 @@ export default async function UsagePage({
                   href={`/dashboard/usage?page=${page - 1}`}
                   className="text-xs text-zinc-400 hover:text-zinc-50 px-3 py-1.5 rounded-lg hover:bg-zinc-800/50"
                 >
-                  ← Prev
+                  ← Sebelumnya
                 </a>
               )}
               <span className="text-xs text-zinc-500 font-mono">
@@ -138,7 +138,7 @@ export default async function UsagePage({
                   href={`/dashboard/usage?page=${page + 1}`}
                   className="text-xs text-zinc-400 hover:text-zinc-50 px-3 py-1.5 rounded-lg hover:bg-zinc-800/50"
                 >
-                  Next →
+                  Berikutnya →
                 </a>
               )}
             </div>

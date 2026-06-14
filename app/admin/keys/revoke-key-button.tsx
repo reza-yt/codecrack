@@ -1,47 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
-import { revokeApiKey } from "./actions";
+import { revokeAdminKey } from "../actions";
 
 export function RevokeKeyButton({ keyId }: { keyId: string }) {
-  const [step, setStep] = useState<"idle" | "confirm" | "loading">("idle");
+  const [pending, startTransition] = useTransition();
+  const [step, setStep] = useState<"idle" | "confirm">("idle");
 
-  const handleClick = async () => {
+  const handleClick = () => {
     if (step === "idle") {
       setStep("confirm");
-      // Auto-reset after 3 seconds if not confirmed
       setTimeout(() => setStep("idle"), 3000);
       return;
     }
-
-    if (step === "confirm") {
-      setStep("loading");
-      await revokeApiKey(keyId);
+    startTransition(async () => {
+      await revokeAdminKey(keyId);
       setStep("idle");
-    }
+    });
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={step === "loading"}
+      disabled={pending}
       className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md transition-colors ${
         step === "confirm"
           ? "bg-red-500/20 text-red-400 border border-red-500/30"
-          : step === "loading"
+          : pending
           ? "opacity-60 text-zinc-500 cursor-not-allowed"
           : "text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
       }`}
     >
-      {step === "loading" && (
-        <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
-      )}
-      {step === "confirm"
-        ? "Yakin cabut?"
-        : step === "loading"
-        ? "Mencabut"
-        : "Cabut"}
+      {pending && <Loader2 className="w-3 h-3 animate-spin" />}
+      {step === "confirm" ? "Yakin?" : pending ? "Mencabut" : "Cabut"}
     </button>
   );
 }

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 export default async function BillingPage() {
   const supabase = await createClient();
@@ -44,11 +44,11 @@ export default async function BillingPage() {
 
   return (
     <div className="fade-in">
-      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Billing</h1>
+      <h1 className="text-2xl font-bold text-zinc-50 mb-6">Tagihan</h1>
 
       {/* Balance card */}
       <div className="glass rounded-xl p-8 mb-8 text-center">
-        <p className="text-sm text-zinc-400 mb-2">Current Balance</p>
+        <p className="text-sm text-zinc-400 mb-2">Saldo saat ini</p>
         <p
           className={`text-4xl font-mono font-bold ${
             balance < 1 ? "text-amber-400" : "text-zinc-50"
@@ -60,23 +60,23 @@ export default async function BillingPage() {
 
       {/* Top-up instructions */}
       <div className="glass rounded-xl p-6 mb-8">
-        <h2 className="text-lg font-semibold text-zinc-50 mb-3">Top-up</h2>
+        <h2 className="text-lg font-semibold text-zinc-50 mb-3">Isi saldo</h2>
         <p className="text-sm text-zinc-400 mb-3">
-          For MVP, top-ups are processed manually. Minimum top-up: $10.
+          Pada tahap MVP, pengisian saldo masih diproses secara manual. Minimum pengisian: $10.
         </p>
         <div className="bg-zinc-900/50 rounded-lg p-4 border border-zinc-800">
           <p className="text-sm text-zinc-300 mb-2">
-            Email{" "}
+            Kirim email ke{" "}
             <code className="font-mono text-emerald-400">contact@codecrack.dev</code>{" "}
-            with:
+            dengan menyertakan:
           </p>
           <ol className="text-sm text-zinc-400 list-decimal list-inside space-y-1">
-            <li>Your registered email</li>
-            <li>Transfer/crypto proof (screenshot or tx hash)</li>
-            <li>Amount in USD</li>
+            <li>Email yang terdaftar</li>
+            <li>Bukti transfer atau hash transaksi crypto (tangkapan layar)</li>
+            <li>Nominal dalam USD</li>
           </ol>
           <p className="text-xs text-zinc-500 mt-3">
-            We&apos;ll credit your account within 24 hours.
+            Saldo akan kami tambahkan ke akun Anda dalam 24 jam.
           </p>
         </div>
       </div>
@@ -84,19 +84,19 @@ export default async function BillingPage() {
       {/* Transactions */}
       <div>
         <h2 className="text-lg font-semibold text-zinc-50 mb-3">
-          Daily Spend (30d)
+          Pengeluaran harian (30 hari)
         </h2>
         {dailyEntries.length === 0 ? (
           <div className="glass rounded-xl p-8 text-center">
-            <p className="text-zinc-400 text-sm">No transactions yet.</p>
+            <p className="text-zinc-400 text-sm">Belum ada transaksi.</p>
           </div>
         ) : (
           <div className="glass rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-800/60">
-                  <th className="text-left px-4 py-3 text-zinc-400 font-normal">Date</th>
-                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Spend</th>
+                  <th className="text-left px-4 py-3 text-zinc-400 font-normal">Tanggal</th>
+                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Pengeluaran</th>
                 </tr>
               </thead>
               <tbody>
