@@ -42,7 +42,8 @@ create table credits (
 -- usage_logs: one row per gateway request
 create table usage_logs (
   id                uuid primary key default gen_random_uuid(),
-  user_id           uuid not null references auth.users(id) on delete cascade,
+  -- nullable: admin-issued resale keys (cc_live_…) have no auth.users row
+  user_id           uuid references auth.users(id) on delete cascade,
   api_key_id        uuid references api_keys(id) on delete set null,
   request_id        text,
   model             text not null default 'hermes-agent',
