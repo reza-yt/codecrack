@@ -2,8 +2,51 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { formatRelativeTime } from "@/lib/utils";
 import { BulkGenerateForm } from "./bulk-generate-form";
 import { RevokeKeyButton } from "./revoke-key-button";
+import { ExtendKeyButton } from "./extend-key-button";
 
 export const dynamic = "force-dynamic";
+
+function expiryBadge(expiresAt: string | null): React.ReactElement {
+  if (!expiresAt) {
+    return (
+      <span className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/60 text-zinc-400 border border-zinc-700/50">
+        Permanen
+      </span>
+    );
+  }
+  const ts = new Date(expiresAt).getTime();
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const diff = ts - now;
+  const days = Math.floor(Math.abs(diff) / dayMs);
+
+  if (diff <= 0) {
+    return (
+      <span className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30">
+        Expired {days}h
+      </span>
+    );
+  }
+  if (diff <= 3 * dayMs) {
+    return (
+      <span className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30">
+        Sisa {days}h
+      </span>
+    );
+  }
+  if (diff <= 14 * dayMs) {
+    return (
+      <span className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+        Sisa {days}h
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+      Sisa {days}h
+    </span>
+  );
+}
 
 export default async function AdminKeysPage() {
   const supabase = createServiceClient();
@@ -21,7 +64,7 @@ export default async function AdminKeysPage() {
       <h1 className="text-2xl font-bold text-zinc-50 mb-2">API key</h1>
       <p className="text-sm text-zinc-400 mb-6">
         Buat key berbasis kuota untuk dijual kembali. Setiap key memiliki
-        batas pemakaian token tersendiri.
+        batas pemakaian token tersendiri dan masa berlaku opsional.
       </p>
 
       {/* Bulk generate */}
@@ -46,7 +89,7 @@ export default async function AdminKeysPage() {
           </div>
         ) : (
           <div className="glass rounded-xl overflow-x-auto">
-            <table className="w-full text-sm min-w-[800px]">
+            <table className="w-full text-sm min-w-[920px]">
               <thead>
                 <tr className="border-b border-zinc-800/60">
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
@@ -60,6 +103,9 @@ export default async function AdminKeysPage() {
                   </th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">
                     Terpakai / Kuota
+                  </th>
+                  <th className="text-left px-4 py-3 text-zinc-400 font-normal">
+                    Masa berlaku
                   </th>
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">
                     Terakhir digunakan
@@ -78,11 +124,13 @@ export default async function AdminKeysPage() {
                   const quota = Number(k.token_quota ?? 0);
                   const pct = quota > 0 ? Math.min(100, (used / quota) * 100) : 0;
                   const exhausted = quota > 0 && used >= quota;
+                  const expired =
+                    k.expires_at && new Date(k.expires_at).getTime() <= Date.now();
                   return (
                     <tr
                       key={k.id}
                       className={`border-b border-zinc-800/40 last:border-0 ${
-                        k.revoked ? "opacity-50" : ""
+                        k.revoked || expired ? "opacity-50" : ""
                       }`}
                     >
                       <td className="px-4 py-2 text-zinc-300">{k.name}</td>
@@ -133,6 +181,23 @@ export default async function AdminKeysPage() {
                           </span>
                         )}
                       </td>
+                      <td className="px-4 py-2">
+                        <div className="flex flex-col gap-0.5">
+                          {expiryBadge(k.expires_at)}
+                          {k.expires_at && (
+                            <span className="text-[10px] text-zinc-500 font-mono">
+                              {new Date(k.expires_at).toLocaleDateString(
+                                "id-ID",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-2 text-xs text-zinc-500">
                         {k.last_used_at
                           ? formatRelativeTime(k.last_used_at)
@@ -145,7 +210,13 @@ export default async function AdminKeysPage() {
                         {k.revoked ? (
                           <span className="text-xs text-zinc-600">dicabut</span>
                         ) : (
-                          <RevokeKeyButton keyId={k.id} />
+                          <div className="inline-flex items-center gap-1 justify-end">
+                            <ExtendKeyButton
+                              keyId={k.id}
+                              currentExpiresAt={k.expires_at}
+                            />
+                            <RevokeKeyButton keyId={k.id} />
+                          </div>
                         )}
                       </td>
                     </tr>

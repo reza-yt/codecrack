@@ -13,12 +13,34 @@ const QUOTA_PRESETS = [
   { label: "50JT", value: 50_000_000 },
 ];
 
+const EXPIRY_PRESETS = [
+  { label: "7 hari", value: 7 },
+  { label: "30 hari", value: 30 },
+  { label: "90 hari", value: 90 },
+  { label: "1 tahun", value: 365 },
+  { label: "Permanen", value: 0 },
+];
+
 const DEFAULT_QUOTA = 10_000_000;
+const DEFAULT_EXPIRY_DAYS = 30;
+
+function formatExpiryPreview(days: number): string {
+  if (days === 0) return "Tidak pernah expire (permanen).";
+  const target = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+  const dateStr = target.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  return `Berlaku sampai ${dateStr}.`;
+}
 
 export function BulkGenerateForm() {
   const [pending, startTransition] = useTransition();
   const [count, setCount] = useState(5);
   const [tokenQuota, setTokenQuota] = useState(DEFAULT_QUOTA);
+  const [expiryDays, setExpiryDays] = useState(DEFAULT_EXPIRY_DAYS);
   const [namePrefix, setNamePrefix] = useState("resell");
   const [batchLabel, setBatchLabel] = useState("");
 
@@ -36,6 +58,7 @@ export function BulkGenerateForm() {
     const fd = new FormData();
     fd.set("count", String(count));
     fd.set("tokenQuota", String(tokenQuota));
+    fd.set("expiryDays", String(expiryDays));
     fd.set("namePrefix", namePrefix);
     fd.set("batchLabel", batchLabel);
 
@@ -180,6 +203,39 @@ export function BulkGenerateForm() {
             Default: 10 juta token per key.
           </p>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm text-zinc-300 mb-1.5">
+          Masa berlaku (hari)
+        </label>
+        <input
+          type="number"
+          min={0}
+          max={3650}
+          value={expiryDays}
+          onChange={(e) => setExpiryDays(parseInt(e.target.value || "0", 10))}
+          className="w-full rounded-lg bg-zinc-900/50 border border-zinc-800 px-3 py-2 text-sm text-zinc-50 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+        />
+        <div className="flex gap-1.5 mt-2 flex-wrap">
+          {EXPIRY_PRESETS.map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              onClick={() => setExpiryDays(p.value)}
+              className={`text-xs px-2 py-0.5 rounded font-mono transition-colors ${
+                expiryDays === p.value
+                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                  : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 border border-transparent"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[11px] text-zinc-500 mt-2">
+          {formatExpiryPreview(expiryDays)} Isi 0 untuk key tanpa batas waktu.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
