@@ -3,9 +3,9 @@ import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "codecrack.dev — Gateway kompatibel OpenAI untuk Hermes",
+  title: "codecrack.dev — Gateway AI kompatibel OpenAI",
   description:
-    "Agen dengan persona terkunci, dilengkapi tools, memori, dan streaming. Satu base URL, satu key, dapat digunakan dari CLI mana pun.",
+    "Agen AI dengan persona terkunci, dilengkapi tools, memori, dan streaming. Satu base URL, satu key, dapat digunakan dari CLI mana pun.",
 };
 
 export default function RootLayout({

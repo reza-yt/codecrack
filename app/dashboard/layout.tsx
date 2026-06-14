@@ -1,14 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Home, Key, Activity, Wallet, Settings, BookOpen, ShieldAlert } from "lucide-react";
+import { Home, Key, Activity, Settings, BookOpen, ShieldAlert } from "lucide-react";
 import { LogoutButton } from "./logout-button";
 
 const baseNav = [
   { href: "/dashboard", icon: Home, label: "Ringkasan" },
   { href: "/dashboard/keys", icon: Key, label: "API Key" },
   { href: "/dashboard/usage", icon: Activity, label: "Pemakaian" },
-  { href: "/dashboard/billing", icon: Wallet, label: "Tagihan" },
   { href: "/dashboard/settings", icon: Settings, label: "Pengaturan" },
   { href: "/docs", icon: BookOpen, label: "Dokumentasi" },
 ];

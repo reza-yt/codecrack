@@ -17,12 +17,6 @@ export function SiteHeader() {
               Dokumentasi
             </Link>
             <Link
-              href="/pricing"
-              className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors"
-            >
-              Harga
-            </Link>
-            <Link
               href="/status"
               className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors"
             >

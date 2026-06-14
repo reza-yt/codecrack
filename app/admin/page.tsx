@@ -19,7 +19,7 @@ export default async function AdminOverview() {
       .eq("revoked", false),
     supabase
       .from("usage_logs")
-      .select("total_tokens, cost_usd, created_at")
+      .select("total_tokens, created_at")
       .gte(
         "created_at",
         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -28,10 +28,6 @@ export default async function AdminOverview() {
 
   const totalTokens30d = (usageRows ?? []).reduce(
     (s: number, r: any) => s + Number(r.total_tokens ?? 0),
-    0
-  );
-  const totalCost30d = (usageRows ?? []).reduce(
-    (s: number, r: any) => s + Number(r.cost_usd ?? 0),
     0
   );
   const requests30d = usageRows?.length ?? 0;
@@ -78,19 +74,6 @@ export default async function AdminOverview() {
             </p>
           </div>
         ))}
-      </div>
-
-      <div className="glass rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-zinc-50 mb-3">
-          Pendapatan 30 hari (hanya tagihan USD)
-        </h2>
-        <p className="text-3xl font-mono font-bold text-emerald-400">
-          ${totalCost30d.toFixed(4)}
-        </p>
-        <p className="text-xs text-zinc-500 mt-1">
-          Berasal dari key yang dibuat melalui dasbor pengguna (non-kuota).
-          Key berbasis kuota token ditagih di muka saat dibuat sehingga tidak muncul di sini.
-        </p>
       </div>
     </div>
   );

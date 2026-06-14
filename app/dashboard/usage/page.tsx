@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 export default async function UsagePage({
   searchParams,
@@ -29,11 +29,11 @@ export default async function UsagePage({
   const totalPages = Math.ceil((count ?? 0) / perPage);
 
   // CSV export data URL
-  const csvHeaders = "Waktu,Key,Token Input,Token Output,Total Token,Biaya,Status,Durasi ms\n";
+  const csvHeaders = "Waktu,Key,Token Input,Token Output,Total Token,Status,Durasi ms\n";
   const csvRows = (logs ?? [])
     .map(
       (log: any) =>
-        `${log.created_at},${log.api_keys?.key_prefix ?? "—"},${log.prompt_tokens},${log.completion_tokens},${log.total_tokens},${Number(log.cost_usd).toFixed(6)},${log.status_code},${log.duration_ms ?? ""}`
+        `${log.created_at},${log.api_keys?.key_prefix ?? "—"},${log.prompt_tokens},${log.completion_tokens},${log.total_tokens},${log.status_code},${log.duration_ms ?? ""}`
     )
     .join("\n");
   const csvContent = csvHeaders + csvRows;
@@ -63,7 +63,7 @@ export default async function UsagePage({
       ) : (
         <>
           <div className="glass rounded-xl overflow-x-auto">
-            <table className="w-full text-sm min-w-[700px]">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="border-b border-zinc-800/60">
                   <th className="text-left px-4 py-3 text-zinc-400 font-normal">Waktu</th>
@@ -71,7 +71,6 @@ export default async function UsagePage({
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">In</th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">Out</th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">Total</th>
-                  <th className="text-right px-4 py-3 text-zinc-400 font-normal">Biaya</th>
                   <th className="text-center px-4 py-3 text-zinc-400 font-normal">Status</th>
                   <th className="text-right px-4 py-3 text-zinc-400 font-normal">Durasi</th>
                 </tr>
@@ -95,9 +94,6 @@ export default async function UsagePage({
                     </td>
                     <td className="px-4 py-2 text-right text-zinc-300 font-mono text-xs">
                       {log.total_tokens.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-4 py-2 text-right text-emerald-400 font-mono text-xs">
-                      {formatCurrency(Number(log.cost_usd))}
                     </td>
                     <td className="px-4 py-2 text-center">
                       <span

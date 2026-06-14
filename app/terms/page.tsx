@@ -13,7 +13,7 @@ export default function TermsPage() {
           <h2 className="text-lg font-semibold text-zinc-50 mt-8">1. Deskripsi Layanan</h2>
           <p>
             codecrack.dev menyediakan gateway API yang kompatibel dengan OpenAI untuk
-            agen Hermes. Akses bersifat undangan dan harus disetujui terlebih dahulu.
+            model AI codecrack. Akses bersifat undangan dan harus disetujui terlebih dahulu.
           </p>
 
           <h2 className="text-lg font-semibold text-zinc-50 mt-8">2. Akun dan Akses</h2>
@@ -23,11 +23,11 @@ export default function TermsPage() {
             secara publik atau menyematkannya pada kode sisi klien.
           </p>
 
-          <h2 className="text-lg font-semibold text-zinc-50 mt-8">3. Penagihan</h2>
+          <h2 className="text-lg font-semibold text-zinc-50 mt-8">3. Kuota dan Pemakaian</h2>
           <p>
-            Saldo bersifat prabayar dan tidak dapat dikembalikan. Pemakaian token
-            dihitung per permintaan berdasarkan konsumsi sebenarnya. Harga dapat
-            berubah dengan pemberitahuan tujuh hari sebelumnya.
+            Setiap API key memiliki kuota token yang sudah ditentukan. Pemakaian
+            dihitung per permintaan berdasarkan konsumsi sebenarnya. Apabila
+            kuota habis, key tidak dapat digunakan hingga diperbarui oleh penerbit.
           </p>
 
           <h2 className="text-lg font-semibold text-zinc-50 mt-8">4. Pemakaian yang Diperbolehkan</h2>

@@ -104,8 +104,8 @@ export default function SettingsPage() {
       <div className="rounded-xl border border-red-500/20 p-6">
         <h2 className="text-lg font-semibold text-red-400 mb-2">Zona berbahaya</h2>
         <p className="text-sm text-zinc-400 mb-4">
-          Penghapusan akun bersifat permanen. Seluruh API key, data pemakaian, dan
-          sisa saldo akan hilang. Hubungi{" "}
+          Penghapusan akun bersifat permanen. Seluruh API key dan data pemakaian
+          akan hilang. Hubungi{" "}
           <code className="font-mono text-emerald-400">contact@codecrack.dev</code>{" "}
           untuk mengajukan penghapusan akun.
         </p>

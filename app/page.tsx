@@ -7,7 +7,7 @@ import { StatusPill } from "@/components/status-pill";
 import { CodeBlock } from "@/components/code-block";
 
 const curlExample = `curl https://api.codecrack.dev/v1/chat/completions \\
-  -H "Authorization: Bearer cc_live_•••" \\
+  -H "Authorization: Bearer *** \\
   -H "Content-Type: application/json" \\
   -d '{"model":"codecrack","messages":[{"role":"user","content":"halo"}],"stream":true}'`;
 
@@ -35,13 +35,13 @@ const features = [
   },
   {
     icon: Layers,
-    title: "Ditenagai Hermes",
-    description: "Agen dengan persona terkunci, lengkap dengan tools, memori, dan konteks bawaan.",
+    title: "Agen lengkap",
+    description: "Persona terkunci dengan tools, memori, dan konteks bawaan.",
   },
   {
     icon: Shield,
-    title: "Bayar sesuai pemakaian",
-    description: "Tanpa langganan. Isi saldo, lalu bayar per token yang digunakan.",
+    title: "Akses berbasis key",
+    description: "Satu API key, kuota token sudah ditentukan. Tanpa langganan, tanpa setup rumit.",
   },
   {
     icon: Code2,
@@ -85,12 +85,12 @@ export default async function LandingPage({
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-50 mb-4">
-            Gateway kompatibel OpenAI untuk{" "}
-            <span className="font-mono italic text-emerald-400">Hermes</span>.
+            Gateway AI kompatibel{" "}
+            <span className="font-mono italic text-emerald-400">OpenAI</span>.
           </h1>
 
           <p className="text-lg text-zinc-400 max-w-2xl mx-auto mb-8">
-            Agen dengan persona terkunci, dilengkapi tools, memori, dan streaming.
+            Agen AI dengan persona terkunci, dilengkapi tools, memori, dan streaming.
             Satu base URL, satu key, dapat digunakan dari CLI mana pun.
           </p>
 
@@ -115,7 +115,7 @@ export default async function LandingPage({
           </div>
 
           <p className="mt-6 text-xs font-mono text-zinc-500">
-            ditenagai hermes-agent v0.16.0 · claude opus 4.7 · system prompt ~6,6k token sudah terpasang
+            satu API key, kuota token siap pakai, persona AI terkunci
           </p>
         </div>
       </section>
@@ -159,35 +159,6 @@ export default async function LandingPage({
           <div>
             <CodeBlock code={pythonExample} language="python" />
           </div>
-        </div>
-      </section>
-
-      {/* Pricing Teaser */}
-      <section className="py-16 px-4 border-t border-zinc-800/60">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-bold text-zinc-50 mb-8">
-            Harga sederhana
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="glass rounded-xl p-6">
-              <p className="text-3xl font-mono font-bold text-emerald-400">$3</p>
-              <p className="text-xs text-zinc-400 mt-1">per 1 juta token input</p>
-            </div>
-            <div className="glass rounded-xl p-6">
-              <p className="text-3xl font-mono font-bold text-emerald-400">$15</p>
-              <p className="text-xs text-zinc-400 mt-1">per 1 juta token output</p>
-            </div>
-            <div className="glass rounded-xl p-6">
-              <p className="text-3xl font-mono font-bold text-zinc-50">$10</p>
-              <p className="text-xs text-zinc-400 mt-1">isi saldo minimum</p>
-            </div>
-          </div>
-          <p className="mt-6 text-sm text-zinc-500">
-            Tanpa langganan. Bayar sesuai pemakaian.{" "}
-            <Link href="/pricing" className="text-emerald-400 hover:underline">
-              Lihat rincian lengkap →
-            </Link>
-          </p>
         </div>
       </section>
 

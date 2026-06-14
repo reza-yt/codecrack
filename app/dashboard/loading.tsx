@@ -10,8 +10,8 @@ export default function DashboardLoading() {
       <Skeleton className="h-8 w-40 mb-6 shimmer" />
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {[0, 1, 2].map((i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        {[0, 1].map((i) => (
           <div key={i} className="glass rounded-xl p-5">
             <Skeleton className="h-4 w-24 mb-3 shimmer" />
             <Skeleton className="h-8 w-20 mb-2 shimmer" />

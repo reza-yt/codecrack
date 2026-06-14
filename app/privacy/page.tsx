@@ -19,7 +19,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-lg font-semibold text-zinc-50 mt-8">2. Data yang Tidak Kami Simpan</h2>
           <p>
-            Kami tidak menyimpan isi pesan Anda maupun respons Hermes. Body
+            Kami tidak menyimpan isi pesan Anda maupun respons model AI. Body
             permintaan diteruskan secara real-time dan tidak dicatat. API key
             disimpan hanya dalam bentuk hash SHA-256.
           </p>
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           <h2 className="text-lg font-semibold text-zinc-50 mt-8">3. Penggunaan Data</h2>
           <p>
             Email digunakan untuk autentikasi dan komunikasi layanan. Data
-            pemakaian digunakan untuk perhitungan tagihan dan pemantauan sistem.
+            pemakaian digunakan untuk perhitungan kuota dan pemantauan sistem.
             Kami tidak menjual data Anda kepada pihak ketiga.
           </p>
 
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-lg font-semibold text-zinc-50 mt-8">5. Retensi Data</h2>
           <p>
-            Log pemakaian disimpan tanpa batas waktu untuk keperluan penagihan.
+            Log pemakaian disimpan tanpa batas waktu untuk keperluan operasional.
             Anda dapat mengajukan penghapusan akun dengan menghubungi
             contact@codecrack.dev.
           </p>
