@@ -14,13 +14,7 @@ export function SiteHeader() {
               href="/docs"
               className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors"
             >
-              Docs
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors"
-            >
-              Pricing
+              Dokumentasi
             </Link>
             <Link
               href="/status"
@@ -35,13 +29,7 @@ export function SiteHeader() {
             href="/login"
             className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors"
           >
-            Log in
-          </Link>
-          <Link
-            href="/waitlist"
-            className="inline-flex items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-medium px-4 py-1.5 text-sm transition-colors"
-          >
-            Get access
+            Masuk
           </Link>
         </div>
       </div>

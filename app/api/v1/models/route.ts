@@ -8,7 +8,7 @@ export async function GET() {
     object: "list",
     data: [
       {
-        id: "hermes-agent",
+        id: "codecrack",
         object: "model",
         created: 1700000000,
         owned_by: "codecrack",

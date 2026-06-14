@@ -1,48 +1,36 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Home, Key, Activity, Wallet, Settings, BookOpen } from "lucide-react";
-import { LogoutButton } from "./logout-button";
+import { Key, Activity, Home, BookOpen, ShieldAlert } from "lucide-react";
+import { requireAdmin } from "@/lib/admin";
+import { LogoutButton } from "@/components/logout-button";
 
-const navItems = [
-  { href: "/dashboard", icon: Home, label: "Overview" },
-  { href: "/dashboard/keys", icon: Key, label: "API Keys" },
-  { href: "/dashboard/usage", icon: Activity, label: "Usage" },
-  { href: "/dashboard/billing", icon: Wallet, label: "Billing" },
-  { href: "/dashboard/settings", icon: Settings, label: "Settings" },
-  { href: "/docs", icon: BookOpen, label: "Docs" },
+const adminNav = [
+  { href: "/admin", icon: Home, label: "Ringkasan" },
+  { href: "/admin/keys", icon: Key, label: "API Key" },
+  { href: "/admin/usage", icon: Activity, label: "Pemakaian" },
+  { href: "/docs", icon: BookOpen, label: "Dokumentasi" },
 ];
 
-export default async function DashboardLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const { user } = await requireAdmin();
 
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <aside className="hidden md:flex md:w-64 md:flex-col border-r border-zinc-800/60 bg-zinc-950">
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="p-4 border-b border-zinc-800/60">
-            <Link href="/" className="flex items-center gap-1.5">
-              <span className="font-mono text-emerald-400 text-sm">/_</span>
-              <span className="font-semibold text-zinc-50">codecrack</span>
+            <Link href="/admin" className="flex items-center gap-1.5">
+              <ShieldAlert className="w-4 h-4 text-amber-400" />
+              <span className="font-semibold text-zinc-50">codecrack admin</span>
             </Link>
           </div>
 
-          {/* Nav */}
           <nav className="flex-1 p-3 space-y-1">
-            {navItems.map((item) => (
+            {adminNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -54,10 +42,12 @@ export default async function DashboardLayout({
             ))}
           </nav>
 
-          {/* User */}
           <div className="p-3 border-t border-zinc-800/60">
-            <p className="text-xs text-zinc-500 font-mono truncate px-3 mb-2">
+            <p className="text-xs text-zinc-500 font-mono truncate px-3 mb-1">
               {user.email}
+            </p>
+            <p className="text-[10px] text-amber-400 font-mono px-3 mb-2 uppercase tracking-wider">
+              Admin
             </p>
             <LogoutButton />
           </div>
@@ -67,16 +57,16 @@ export default async function DashboardLayout({
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur border-b border-zinc-800/60">
         <div className="flex items-center justify-between p-4">
-          <Link href="/" className="flex items-center gap-1.5">
-            <span className="font-mono text-emerald-400 text-sm">/_</span>
-            <span className="font-semibold text-zinc-50">codecrack</span>
+          <Link href="/admin" className="flex items-center gap-1.5">
+            <ShieldAlert className="w-4 h-4 text-amber-400" />
+            <span className="font-semibold text-zinc-50">admin</span>
           </Link>
           <span className="text-xs text-zinc-500 font-mono truncate max-w-[150px]">
             {user.email}
           </span>
         </div>
         <nav className="flex items-center gap-1 px-3 pb-2 overflow-x-auto">
-          {navItems.slice(0, 5).map((item) => (
+          {adminNav.slice(0, 4).map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -89,11 +79,8 @@ export default async function DashboardLayout({
         </nav>
       </div>
 
-      {/* Main content */}
       <main className="flex-1 overflow-auto">
-        <div className="pt-[88px] md:pt-0 p-6 md:p-8 max-w-5xl">
-          {children}
-        </div>
+        <div className="pt-[88px] md:pt-0 p-6 md:p-8 max-w-6xl">{children}</div>
       </main>
     </div>
   );

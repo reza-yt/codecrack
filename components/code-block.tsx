@@ -36,7 +36,7 @@ export function CodeBlock({ code, language = "bash", filename }: CodeBlockProps)
         <button
           onClick={handleCopy}
           className="absolute top-3 right-3 p-2 rounded-md bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-400 hover:text-zinc-200 opacity-0 group-hover:opacity-100 transition-all"
-          aria-label="Copy code"
+          aria-label="Salin kode"
         >
           {copied ? (
             <Check className="w-4 h-4 text-emerald-400" />

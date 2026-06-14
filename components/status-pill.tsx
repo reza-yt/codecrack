@@ -24,7 +24,7 @@ export function StatusPill() {
     return (
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-mono text-zinc-500">
         <span className="w-2 h-2 rounded-full bg-zinc-600" />
-        checking status...
+        memeriksa status...
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function StatusPill() {
           }`}
         />
       </span>
-      {status === "operational" ? "all systems operational" : "degraded"}
+      {status === "operational" ? "seluruh sistem operasional" : "performa menurun"}
     </div>
   );
 }
