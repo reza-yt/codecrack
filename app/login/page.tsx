@@ -13,7 +13,7 @@ export default function LoginPage() {
               Masuk
             </h1>
             <p className="text-zinc-400 text-sm">
-              Tautan login akan dikirim ke email Anda. Tidak diperlukan kata sandi.
+              Login dengan akun Google pemilik. Tidak diperlukan kata sandi.
             </p>
           </div>
           <LoginForm />
